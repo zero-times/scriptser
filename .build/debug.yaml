@@ -1,0 +1,81 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "PackageStructure": ["<PackageStructure>"]
+  "Scriptser-arm64-apple-macosx26.0-debug.exe": ["<Scriptser-arm64-apple-macosx26.0-debug.exe>"]
+  "Scriptser-arm64-apple-macosx26.0-debug.module": ["<Scriptser-arm64-apple-macosx26.0-debug.module>"]
+  "main": ["<Scriptser-arm64-apple-macosx26.0-debug.exe>","<Scriptser-arm64-apple-macosx26.0-debug.module>"]
+  "test": ["<Scriptser-arm64-apple-macosx26.0-debug.exe>","<Scriptser-arm64-apple-macosx26.0-debug.module>"]
+default: "main"
+nodes:
+  "/Users/mac/Documents/GitHub/scriptser/Sources/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser":
+    is-mutated: true
+commands:
+  "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser-entitlement.plist":
+    tool: write-auxiliary-file
+    inputs: ["<entitlement-plist>","<com.apple.security.get-task-allow>"]
+    outputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser-entitlement.plist"]
+    description: "Write auxiliary file /Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser-entitlement.plist"
+
+  "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/ScriptModels.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/ScriptserApp.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/AppSettings.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ProcessManager.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ScriptRepository.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ScriptStore.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Utilities/Logger.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/Components/StatusBadge.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/OutputViewerView.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptEditorView.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptManagerView.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptMenuView.swift"]
+    outputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/sources"]
+    description: "Write auxiliary file /Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/sources"
+
+  "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.swift.o"]
+    outputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.product/Objects.LinkFileList"
+
+  "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"]
+    outputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+
+  "<Scriptser-arm64-apple-macosx26.0-debug.exe>":
+    tool: phony
+    inputs: ["<Scriptser-arm64-apple-macosx26.0-debug.exe-CodeSigning>"]
+    outputs: ["<Scriptser-arm64-apple-macosx26.0-debug.exe>"]
+
+  "<Scriptser-arm64-apple-macosx26.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Modules/Scriptser.swiftmodule"]
+    outputs: ["<Scriptser-arm64-apple-macosx26.0-debug.module>"]
+
+  "C.Scriptser-arm64-apple-macosx26.0-debug.exe":
+    tool: shell
+    inputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.product/Objects.LinkFileList"]
+    outputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser"]
+    description: "Linking ./.build/arm64-apple-macosx/debug/Scriptser"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-L","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug","-o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser","-module-name","Scriptser","-Xlinker","-no_warn_duplicate_libraries","-emit-executable","-Xlinker","-alias","-Xlinker","_Scriptser_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx","-target","arm64-apple-macosx13.0","-Xlinker","-add_ast_path","-Xlinker","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Modules/Scriptser.swiftmodule","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g"]
+
+  "C.Scriptser-arm64-apple-macosx26.0-debug.exe-entitlements":
+    tool: shell
+    inputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser-entitlement.plist"]
+    outputs: ["<Scriptser-arm64-apple-macosx26.0-debug.exe-CodeSigning>"]
+    description: "Applying debug entitlements to ./.build/arm64-apple-macosx/debug/Scriptser"
+    args: ["codesign","--force","--sign","-","--entitlements","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser-entitlement.plist","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser"]
+
+  "C.Scriptser-arm64-apple-macosx26.0-debug.module":
+    tool: shell
+    inputs: ["/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/ScriptModels.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/ScriptserApp.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/AppSettings.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ProcessManager.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ScriptRepository.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ScriptStore.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Utilities/Logger.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/Components/StatusBadge.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/OutputViewerView.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptEditorView.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptManagerView.swift","/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptMenuView.swift","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/sources"]
+    outputs: ["/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.swift.o","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Modules/Scriptser.swiftmodule"]
+    description: "Compiling Swift Module 'Scriptser' (12 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","Scriptser","-emit-dependencies","-emit-module","-emit-module-path","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Modules/Scriptser.swiftmodule","-output-file-map","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/output-file-map.json","-incremental","-c","@/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/sources","-I","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx13.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j10","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","Scriptser_main","-swift-version","5","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","scriptser"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/mac/Documents/GitHub/scriptser/Sources/","/Users/mac/Documents/GitHub/scriptser/Package.swift","/Users/mac/Documents/GitHub/scriptser/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+

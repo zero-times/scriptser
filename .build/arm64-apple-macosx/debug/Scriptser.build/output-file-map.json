@@ -1,0 +1,89 @@
+{
+  "": {
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/master.swiftdeps"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/ScriptModels.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptModels.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/ScriptserApp.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptserApp.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/AppSettings.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/AppSettings.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ProcessManager.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ProcessManager.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ScriptRepository.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptRepository.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Store/ScriptStore.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptStore.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Utilities/Logger.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/Logger.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/Components/StatusBadge.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/StatusBadge.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/OutputViewerView.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/OutputViewerView.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptEditorView.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptEditorView.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptManagerView.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptManagerView.dia"
+  },
+  "/Users/mac/Documents/GitHub/scriptser/Sources/Scriptser/Views/ScriptMenuView.swift": {
+    "dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.d",
+    "object": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.swift.o",
+    "swiftmodule": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView~partial.swiftmodule",
+    "swift-dependencies": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.swiftdeps",
+    "diagnostics": "/Users/mac/Documents/GitHub/scriptser/.build/arm64-apple-macosx/debug/Scriptser.build/ScriptMenuView.dia"
+  }
+}

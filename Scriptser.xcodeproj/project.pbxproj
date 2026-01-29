@@ -1,0 +1,289 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0468CECC2F2B098F0060CE5A /* ScriptEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEC82F2B098F0060CE5A /* ScriptEditorView.swift */; };
+		0468CECD2F2B098F0060CE5A /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEC52F2B098F0060CE5A /* StatusBadge.swift */; };
+		0468CECE2F2B098F0060CE5A /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEBE2F2B098F0060CE5A /* AppSettings.swift */; };
+		0468CECF2F2B098F0060CE5A /* ScriptRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEC02F2B098F0060CE5A /* ScriptRepository.swift */; };
+		0468CED02F2B098F0060CE5A /* ProcessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEBF2F2B098F0060CE5A /* ProcessManager.swift */; };
+		0468CED12F2B098F0060CE5A /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEC32F2B098F0060CE5A /* Logger.swift */; };
+		0468CED22F2B098F0060CE5A /* ScriptStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEC12F2B098F0060CE5A /* ScriptStore.swift */; };
+		0468CED32F2B098F0060CE5A /* ScriptMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CECA2F2B098F0060CE5A /* ScriptMenuView.swift */; };
+		0468CED42F2B098F0060CE5A /* ScriptManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEC92F2B098F0060CE5A /* ScriptManagerView.swift */; };
+		0468CED52F2B098F0060CE5A /* OutputViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0468CEC72F2B098F0060CE5A /* OutputViewerView.swift */; };
+		A1B2C3D4E5F60718293A4B70 /* ScriptserApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B80 /* ScriptserApp.swift */; };
+		A1B2C3D4E5F60718293A4B73 /* ScriptModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B83 /* ScriptModels.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0468CEBE2F2B098F0060CE5A /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		0468CEBF2F2B098F0060CE5A /* ProcessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessManager.swift; sourceTree = "<group>"; };
+		0468CEC02F2B098F0060CE5A /* ScriptRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptRepository.swift; sourceTree = "<group>"; };
+		0468CEC12F2B098F0060CE5A /* ScriptStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptStore.swift; sourceTree = "<group>"; };
+		0468CEC32F2B098F0060CE5A /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		0468CEC52F2B098F0060CE5A /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
+		0468CEC72F2B098F0060CE5A /* OutputViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputViewerView.swift; sourceTree = "<group>"; };
+		0468CEC82F2B098F0060CE5A /* ScriptEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptEditorView.swift; sourceTree = "<group>"; };
+		0468CEC92F2B098F0060CE5A /* ScriptManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptManagerView.swift; sourceTree = "<group>"; };
+		0468CECA2F2B098F0060CE5A /* ScriptMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptMenuView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B61 /* Scriptser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Scriptser.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F60718293A4B80 /* ScriptserApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptserApp.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B83 /* ScriptModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptModels.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1B2C3D4E5F60718293A4B63 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0468CEC22F2B098F0060CE5A /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				0468CEBE2F2B098F0060CE5A /* AppSettings.swift */,
+				0468CEBF2F2B098F0060CE5A /* ProcessManager.swift */,
+				0468CEC02F2B098F0060CE5A /* ScriptRepository.swift */,
+				0468CEC12F2B098F0060CE5A /* ScriptStore.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		0468CEC42F2B098F0060CE5A /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				0468CEC32F2B098F0060CE5A /* Logger.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		0468CEC62F2B098F0060CE5A /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0468CEC52F2B098F0060CE5A /* StatusBadge.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		0468CECB2F2B098F0060CE5A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0468CEC62F2B098F0060CE5A /* Components */,
+				0468CEC72F2B098F0060CE5A /* OutputViewerView.swift */,
+				0468CEC82F2B098F0060CE5A /* ScriptEditorView.swift */,
+				0468CEC92F2B098F0060CE5A /* ScriptManagerView.swift */,
+				0468CECA2F2B098F0060CE5A /* ScriptMenuView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60718293A4B5D = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60718293A4B5E /* Sources */,
+				A1B2C3D4E5F60718293A4B90 /* Info.plist */,
+				A1B2C3D4E5F60718293A4B5F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60718293A4B5E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60718293A4B80 /* ScriptserApp.swift */,
+				0468CEC22F2B098F0060CE5A /* Store */,
+				0468CEC42F2B098F0060CE5A /* Utilities */,
+				0468CECB2F2B098F0060CE5A /* Views */,
+				A1B2C3D4E5F60718293A4B83 /* ScriptModels.swift */,
+			);
+			name = Sources;
+			path = Sources/Scriptser;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60718293A4B5F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60718293A4B61 /* Scriptser.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1B2C3D4E5F60718293A4B60 /* Scriptser */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D4E5F60718293A4BC1 /* Build configuration list for PBXNativeTarget "Scriptser" */;
+			buildPhases = (
+				A1B2C3D4E5F60718293A4B62 /* Sources */,
+				A1B2C3D4E5F60718293A4B63 /* Frameworks */,
+				A1B2C3D4E5F60718293A4B64 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Scriptser;
+			productName = Scriptser;
+			productReference = A1B2C3D4E5F60718293A4B61 /* Scriptser.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1B2C3D4E5F60718293A4B5C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+			};
+			buildConfigurationList = A1B2C3D4E5F60718293A4BC0 /* Build configuration list for PBXProject "Scriptser" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A1B2C3D4E5F60718293A4B5D;
+			productRefGroup = A1B2C3D4E5F60718293A4B5F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1B2C3D4E5F60718293A4B60 /* Scriptser */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1B2C3D4E5F60718293A4B64 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1B2C3D4E5F60718293A4B62 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F60718293A4B70 /* ScriptserApp.swift in Sources */,
+				0468CECC2F2B098F0060CE5A /* ScriptEditorView.swift in Sources */,
+				0468CECD2F2B098F0060CE5A /* StatusBadge.swift in Sources */,
+				0468CECE2F2B098F0060CE5A /* AppSettings.swift in Sources */,
+				0468CECF2F2B098F0060CE5A /* ScriptRepository.swift in Sources */,
+				0468CED02F2B098F0060CE5A /* ProcessManager.swift in Sources */,
+				0468CED12F2B098F0060CE5A /* Logger.swift in Sources */,
+				0468CED22F2B098F0060CE5A /* ScriptStore.swift in Sources */,
+				0468CED32F2B098F0060CE5A /* ScriptMenuView.swift in Sources */,
+				0468CED42F2B098F0060CE5A /* ScriptManagerView.swift in Sources */,
+				0468CED52F2B098F0060CE5A /* OutputViewerView.swift in Sources */,
+				A1B2C3D4E5F60718293A4B73 /* ScriptModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1B2C3D4E5F60718293A4BA0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_TESTABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F60718293A4BA1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A1B2C3D4E5F60718293A4BB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FVSJ7Y58GD;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_TESTABILITY = YES;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ingoo.scriptser;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F60718293A4BB1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FVSJ7Y58GD;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ingoo.scriptser;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1B2C3D4E5F60718293A4BC0 /* Build configuration list for PBXProject "Scriptser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F60718293A4BA0 /* Debug */,
+				A1B2C3D4E5F60718293A4BA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A1B2C3D4E5F60718293A4BC1 /* Build configuration list for PBXNativeTarget "Scriptser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F60718293A4BB0 /* Debug */,
+				A1B2C3D4E5F60718293A4BB1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1B2C3D4E5F60718293A4B5C /* Project object */;
+}
