@@ -160,7 +160,8 @@ final class ProcessManager: ObservableObject {
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/zsh")
-        process.arguments = ["-lc", script.command]
+        // -i: interactive (reads .zshrc), -l: login (reads .zprofile), -c: execute command
+        process.arguments = ["-ilc", script.command]
 
         let workingDir = script.workingDirectory.trimmingCharacters(in: .whitespacesAndNewlines)
         if !workingDir.isEmpty {
