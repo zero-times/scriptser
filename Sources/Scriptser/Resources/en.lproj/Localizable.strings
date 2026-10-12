@@ -109,3 +109,7 @@
 "The downloaded update failed verification. Please download it again." = "The downloaded update failed verification. Please download it again.";
 "Update request failed: %@" = "Update request failed: %@";
 "GitHub’s request limit has been reached. Try later or visit Releases." = "GitHub’s request limit has been reached. Try later or visit Releases.";
+
+"Add Custom Command..." = "Add Custom Command...";
+
+"Version checked via the release page. Visit Releases to download the installer." = "Version checked via the release page. Visit Releases to download the installer.";

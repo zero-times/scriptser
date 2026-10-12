@@ -4,23 +4,17 @@ import SwiftUI
 /// A compact, scrollable menu for quick script access.
 struct ScriptMenuView: View {
     @EnvironmentObject private var store: ScriptStore
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Scriptser", systemImage: "terminal").font(.headline)
+                Label(Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Scriptser", systemImage: "terminal").font(.headline)
                 Spacer()
-                if #available(macOS 14.0, *) {
-                    SettingsLink { Text(L10n.text("Manager")) }
-                        .simultaneousGesture(TapGesture().onEnded { NSApp.activate(ignoringOtherApps: true) })
-                        .keyboardShortcut(",", modifiers: .command)
-                } else {
-                    Button(L10n.text("Manager")) {
-                        NSApp.activate(ignoringOtherApps: true)
-                        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                    }
-                    .keyboardShortcut(",", modifiers: .command)
+                Button(L10n.text("Manager")) {
+                    showManager()
                 }
+                .keyboardShortcut(",", modifiers: .command)
             }
             HStack(spacing: 8) {
                 Button { store.runAll() } label: { Label(L10n.text("Run All"), systemImage: "play.fill") }
@@ -30,6 +24,8 @@ struct ScriptMenuView: View {
                 Spacer()
             }
             Divider()
+            Text(L10n.format("%d scripts · %d running", store.scripts.count, store.scripts.filter { store.isRunning($0) }.count))
+                .font(.caption).foregroundStyle(.secondary)
             if store.scripts.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.text("No scripts yet")).font(.headline)
@@ -43,7 +39,11 @@ struct ScriptMenuView: View {
                         ForEach(store.scripts) { ScriptMenuRow(script: $0) }
                     }
                 }
-                .frame(maxHeight: 320)
+                // A finite height keeps the menu's scroll view from collapsing in MenuBarExtra.
+                .frame(height: min(CGFloat(store.scripts.count) * 64, 320))
+            }
+            Button { store.editingScript = .empty(); showManager() } label: {
+                Label(L10n.text("Add Custom Command..."), systemImage: "plus")
             }
             Divider()
             UpdateControlsView()
@@ -58,6 +58,11 @@ struct ScriptMenuView: View {
         .padding(16)
         .frame(width: 380)
         .errorAlert($store.lastError)
+    }
+
+    private func showManager() {
+        openWindow(id: ScriptserApp.managerWindowID)
+        NSApp.activate(ignoringOtherApps: true)
     }
 }
 

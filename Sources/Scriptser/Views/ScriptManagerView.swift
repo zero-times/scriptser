@@ -4,7 +4,6 @@ import UniformTypeIdentifiers
 /// Main script management window.
 struct ScriptManagerView: View {
     @EnvironmentObject private var store: ScriptStore
-    @State private var editingScript: ScriptEntry?
     @State private var viewingOutputScript: ScriptEntry?
     @State private var scriptToDelete: ScriptEntry?
     @State private var showingDeleteConfirmation = false
@@ -55,7 +54,7 @@ struct ScriptManagerView: View {
         }
         .padding(20)
         .frame(minWidth: 780, minHeight: 540)
-        .sheet(item: $editingScript) { script in
+        .sheet(item: $store.editingScript) { script in
             ScriptEditorView(script: script) { store.upsert($0) }
         }
         .sheet(item: $viewingOutputScript) { OutputViewerView(script: $0) }
@@ -104,8 +103,8 @@ struct ScriptManagerView: View {
             Button { searchFocused = true } label: { EmptyView() }
                 .keyboardShortcut("f", modifiers: .command)
                 .hidden().frame(width: 0, height: 0).accessibilityHidden(true)
-            Button { editingScript = .empty() } label: {
-                Label(L10n.text("Add Script"), systemImage: "plus")
+            Button { store.editingScript = .empty() } label: {
+                Label(L10n.text("Add Custom Command..."), systemImage: "plus")
             }
             .buttonStyle(.borderedProminent)
             .keyboardShortcut("n", modifiers: .command)
@@ -117,13 +116,13 @@ struct ScriptManagerView: View {
             ForEach(visibleScripts) { script in
                 ScriptManagerRow(
                     script: script,
-                    onEdit: { editingScript = script },
+                    onEdit: { store.editingScript = script },
                     onViewOutput: { viewingOutputScript = script },
                     onDelete: { requestDelete(script) }
                 )
                 .tag(script.id)
                 .contextMenu {
-                    Button(L10n.text("Edit")) { editingScript = script }
+                    Button(L10n.text("Edit")) { store.editingScript = script }
                     Button(L10n.text("Output")) { viewingOutputScript = script }
                     Divider()
                     if store.isRunning(script) {
@@ -151,7 +150,7 @@ struct ScriptManagerView: View {
                     Text(L10n.text(store.scripts.isEmpty ? "Add a shell command to get started." : "Try another search or filter."))
                         .foregroundStyle(.secondary)
                     if store.scripts.isEmpty {
-                        Button(L10n.text("Add Script")) { editingScript = .empty() }
+                        Button(L10n.text("Add Custom Command...")) { store.editingScript = .empty() }
                     }
                 }
                 .padding(20)
@@ -274,17 +273,32 @@ struct ScriptManagerRow: View {
     }
 }
 
+@MainActor
 struct ErrorAlertModifier: ViewModifier {
     @Binding var error: ScriptStoreError?
+    @State private var presentedError: ScriptStoreError?
+
+    private struct PresentationState: Hashable {
+        let pendingMessage: String?
+        let isPresenting: Bool
+    }
 
     func body(content: Content) -> some View {
         content.alert(
             L10n.text("Error"),
-            isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } }),
-            presenting: error
+            isPresented: Binding(get: { presentedError != nil }, set: { if !$0 { presentedError = nil } }),
+            presenting: presentedError
         ) { _ in
-            Button(L10n.text("OK"), role: .cancel) { error = nil }
+            Button(L10n.text("OK"), role: .cancel) { presentedError = nil }
         } message: { Text($0.localizedDescription) }
+        .task(id: PresentationState(pendingMessage: error?.localizedDescription, isPresenting: presentedError != nil)) {
+            // Claim shared errors on the main actor before presenting. Other surfaces
+            // read nil and cannot present a second copy of the same error.
+            if presentedError == nil, let pending = error {
+                error = nil
+                presentedError = pending
+            }
+        }
     }
 }
 

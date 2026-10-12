@@ -106,7 +106,11 @@ final class AppUpdateManager: ObservableObject {
     enum State: Equatable { case idle, checking, current, available, noRelease, failed }
     static let releasesURL = URL(string: "https://github.com/zero-times/scriptser/releases")!
     private static let latestURL = URL(string: "https://api.github.com/repos/zero-times/scriptser/releases/latest")!
+    private static let latestPageURL = URL(string: "https://github.com/zero-times/scriptser/releases/latest")!
     private let session: URLSession
+    private let now: () -> Date
+    private var nextCheckAllowedAt = Date.distantPast
+    private var apiLimitedUntil = Date.distantPast
     private let download: (URLRequest) async throws -> (URL, URLResponse)
     private let logger = AppLogger.general
     let currentVersion: String
@@ -116,6 +120,7 @@ final class AppUpdateManager: ObservableObject {
     @Published private(set) var isDownloading = false
     @Published private(set) var downloadedURL: URL?
     @Published private(set) var lastError: AppUpdateError?
+    @Published private(set) var usesWebsiteFallback = false
 
     var package: GitHubRelease.Asset? {
         #if arch(arm64)
@@ -125,35 +130,56 @@ final class AppUpdateManager: ObservableObject {
         #endif
     }
 
-    init(session: URLSession = .shared, currentVersion: String? = nil,
+    init(session: URLSession = .shared, currentVersion: String? = nil, now: @escaping () -> Date = Date.init,
          download: ((URLRequest) async throws -> (URL, URLResponse))? = nil) {
         self.session = session
+        self.now = now
         self.download = download ?? { try await session.download(for: $0) }
         self.currentVersion = currentVersion
             ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
     }
 
-    func checkForUpdates() async {
-        guard state != .checking, !isDownloading else { return }
+    /// False means another surface already owns the in-flight check.
+    @discardableResult
+    func checkForUpdates() async -> Bool {
+        guard state != .checking, !isDownloading else { return false }
+        // Reuse the result briefly when the same check is requested from another surface.
+        guard now() >= nextCheckAllowedAt else { return true }
         state = .checking
         latestRelease = nil
         downloadedURL = nil
         lastError = nil
+        usesWebsiteFallback = false
+        defer { nextCheckAllowedAt = now().addingTimeInterval(60) }
         do {
-            var request = URLRequest(url: Self.latestURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
-            request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-            request.setValue("Scriptser/\(currentVersion)", forHTTPHeaderField: "User-Agent")
-            let (data, response) = try await session.data(for: request)
-            guard let response = response as? HTTPURLResponse else { throw AppUpdateError.invalidRelease }
-            if response.statusCode == 404 { state = .noRelease; return }
-            if response.statusCode == 403 || response.statusCode == 429 {
-                let details = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-                let message = details?["message"] as? String ?? ""
-                if response.statusCode == 429 || response.value(forHTTPHeaderField: "X-RateLimit-Remaining") == "0"
-                    || message.lowercased().contains("rate limit") { throw AppUpdateError.rateLimited }
+            let release: GitHubRelease
+            if now() < apiLimitedUntil {
+                release = try await releaseFromWebsite()
+            } else {
+                var request = URLRequest(url: Self.latestURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
+                request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+                request.setValue("Scriptser/\(currentVersion)", forHTTPHeaderField: "User-Agent")
+                let (data, response) = try await session.data(for: request)
+                guard let response = response as? HTTPURLResponse else { throw AppUpdateError.invalidRelease }
+                if response.statusCode == 404 { state = .noRelease; return true }
+                var limited = false
+                if response.statusCode == 403 || response.statusCode == 429 {
+                    let details = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                    let message = details?["message"] as? String ?? ""
+                    if response.statusCode == 429 || response.value(forHTTPHeaderField: "X-RateLimit-Remaining") == "0"
+                        || message.lowercased().contains("rate limit") { limited = true }
+                }
+                if limited {
+                    let reset = response.value(forHTTPHeaderField: "X-RateLimit-Reset").flatMap(TimeInterval.init)
+                    let retry = response.value(forHTTPHeaderField: "Retry-After").flatMap(TimeInterval.init)
+                    apiLimitedUntil = max(now().addingTimeInterval(60), reset.map(Date.init(timeIntervalSince1970:))
+                        ?? now().addingTimeInterval(retry ?? 3600))
+                    release = try await releaseFromWebsite()
+                } else {
+                    guard response.statusCode == 200 else { throw AppUpdateError.http(response.statusCode) }
+                    release = try JSONDecoder().decode(GitHubRelease.self, from: data)
+                }
             }
-            guard response.statusCode == 200 else { throw AppUpdateError.http(response.statusCode) }
-            let release = try JSONDecoder().decode(GitHubRelease.self, from: data)
             guard !release.draft, !release.prerelease,
                   release.htmlURL.scheme == "https", release.htmlURL.host == "github.com",
                   release.htmlURL.path.hasPrefix("/zero-times/scriptser/releases/tag/") else {
@@ -170,6 +196,29 @@ final class AppUpdateManager: ObservableObject {
             state = .failed
             logger.error("Update check failed: \(error.localizedDescription)")
         }
+        return true
+    }
+
+    /// GitHub's official /latest redirect identifies the stable release without API quota.
+    /// Website responses have no trusted size/digest metadata: use Releases for installation.
+    private func releaseFromWebsite() async throws -> GitHubRelease {
+        var request = URLRequest(url: Self.latestPageURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
+        request.setValue("text/html", forHTTPHeaderField: "Accept")
+        request.setValue("Scriptser/\(currentVersion)", forHTTPHeaderField: "User-Agent")
+        let (_, response) = try await session.data(for: request)
+        guard let response = response as? HTTPURLResponse else { throw AppUpdateError.invalidRelease }
+        guard response.statusCode == 200 else {
+            if response.statusCode == 403 || response.statusCode == 429 { throw AppUpdateError.rateLimited }
+            throw AppUpdateError.http(response.statusCode)
+        }
+        guard let url = response.url, url.scheme == "https", url.host == "github.com",
+              url.user == nil, url.password == nil,
+              url.path.hasPrefix("/zero-times/scriptser/releases/tag/") else { throw AppUpdateError.invalidRelease }
+        let tag = String(url.path.dropFirst("/zero-times/scriptser/releases/tag/".count))
+        guard ReleaseVersion(tag) != nil else { throw AppUpdateError.invalidVersion }
+        usesWebsiteFallback = true
+        logger.info("Checked stable release using GitHub website: \(tag)")
+        return GitHubRelease(tagName: tag, htmlURL: url, body: nil, draft: false, prerelease: false, assets: [])
     }
 
     /// Downloads only a published release package; installation is completed in Finder/the installer.

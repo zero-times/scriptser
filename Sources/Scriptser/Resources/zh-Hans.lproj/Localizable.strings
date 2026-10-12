@@ -109,3 +109,7 @@
 "The downloaded update failed verification. Please download it again." = "下载的更新包校验失败，请重新下载。";
 "Update request failed: %@" = "更新请求失败：%@";
 "GitHub’s request limit has been reached. Try later or visit Releases." = "GitHub 请求次数达到上限，请稍后重试或前往发布页面。";
+
+"Add Custom Command..." = "添加自定义命令…";
+
+"Version checked via the release page. Visit Releases to download the installer." = "已通过发布页面核对版本，请前往发布页面下载安装包。";

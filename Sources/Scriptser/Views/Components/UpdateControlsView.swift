@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct UpdateControlsView: View {
     @EnvironmentObject private var store: ScriptStore
     @State private var showingUpdate = false
+    @State private var checkError: ScriptStoreError?
 
     private var status: String {
         switch store.updateManager.state {
@@ -27,7 +28,8 @@ struct UpdateControlsView: View {
             } else {
                 Button(L10n.text("Check for Updates...")) {
                     Task {
-                        await store.updateManager.checkForUpdates()
+                        guard await store.updateManager.checkForUpdates() else { return }
+                        if let error = store.updateManager.lastError { checkError = .updateError(error) }
                         if store.updateManager.state == .available { showingUpdate = true }
                     }
                 }
@@ -40,12 +42,14 @@ struct UpdateControlsView: View {
             .accessibilityLabel(L10n.text("Visit Releases"))
         }
         .sheet(isPresented: $showingUpdate) { UpdateDetailsView() }
+        .errorAlert($checkError)
     }
 }
 
 struct UpdateDetailsView: View {
     @EnvironmentObject private var store: ScriptStore
     @Environment(\.dismiss) private var dismiss
+    @State private var downloadError: ScriptStoreError?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -67,7 +71,9 @@ struct UpdateDetailsView: View {
                 Text(L10n.text("Open the downloaded package, quit Scriptser, and replace the app in Applications. Your scripts and preferences are kept."))
                     .font(.caption).foregroundStyle(.secondary)
                 if store.updateManager.package == nil {
-                    Text(L10n.text("No compatible macOS package is attached. Visit Releases for installation options."))
+                    Text(L10n.text(store.updateManager.usesWebsiteFallback
+                        ? "Version checked via the release page. Visit Releases to download the installer."
+                        : "No compatible macOS package is attached. Visit Releases for installation options."))
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -81,7 +87,7 @@ struct UpdateDetailsView: View {
                 Button(L10n.text("Show in Finder")) { NSWorkspace.shared.activateFileViewerSelecting([url]) }
             }
             HStack {
-                Button(L10n.text("Visit Releases")) { NSWorkspace.shared.open(AppUpdateManager.releasesURL) }
+                Button(L10n.text("Visit Releases")) { NSWorkspace.shared.open(store.updateManager.latestRelease?.htmlURL ?? AppUpdateManager.releasesURL) }
                 Spacer()
                 Button(L10n.text("Close")) { dismiss() }
                     .keyboardShortcut(.cancelAction)
@@ -96,7 +102,7 @@ struct UpdateDetailsView: View {
         .padding(20)
         .frame(width: 580)
         .interactiveDismissDisabled(store.updateManager.isDownloading)
-        .errorAlert($store.lastError)
+        .errorAlert($downloadError)
     }
 
     private func chooseDestination() {
@@ -109,7 +115,10 @@ struct UpdateDetailsView: View {
         }
         panel.canCreateDirectories = true
         if panel.runModal() == .OK, let url = panel.url {
-            Task { await store.updateManager.downloadUpdate(to: url) }
+            Task {
+                await store.updateManager.downloadUpdate(to: url)
+                if let error = store.updateManager.lastError { downloadError = .updateError(error) }
+            }
         }
     }
 }

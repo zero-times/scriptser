@@ -48,11 +48,12 @@ final class ScriptStore: ObservableObject {
     private var repository: ScriptRepository?
     let processManager: ProcessManager
     let settings: AppSettings
-    let updateManager = AppUpdateManager()
+    let updateManager: AppUpdateManager
     private var subscriptions = Set<AnyCancellable>()
 
     // State
     @Published var scripts: [ScriptEntry] = []
+    @Published var editingScript: ScriptEntry?
     @Published var lastError: ScriptStoreError?
     @Published var searchQuery: String = ""
     @Published private(set) var isReady = false
@@ -70,9 +71,11 @@ final class ScriptStore: ObservableObject {
         }
     }
 
-    init(repository: ScriptRepository? = nil, settings: AppSettings? = nil, processManager: ProcessManager? = nil) {
+    init(repository: ScriptRepository? = nil, configURL: URL? = nil, settings: AppSettings? = nil,
+         processManager: ProcessManager? = nil, updateManager: AppUpdateManager? = nil) {
         self.processManager = processManager ?? ProcessManager()
         self.settings = settings ?? AppSettings()
+        self.updateManager = updateManager ?? AppUpdateManager()
 
         // Nested ObservableObjects must invalidate the coordinator's views too.
         self.processManager.objectWillChange
@@ -85,16 +88,12 @@ final class ScriptStore: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] message in self?.lastError = .settingsError(message) }
             .store(in: &subscriptions)
-        updateManager.objectWillChange
+        self.updateManager.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
-            .store(in: &subscriptions)
-        updateManager.$lastError
-            .compactMap { $0 }
-            .sink { [weak self] error in self?.lastError = .updateError(error) }
             .store(in: &subscriptions)
 
         do {
-            self.repository = try repository ?? ScriptRepository()
+            self.repository = try repository ?? ScriptRepository(configURL: configURL)
             load()
             Task {
                 // Complete recovery before considering any automatic execution.

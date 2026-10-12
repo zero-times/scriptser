@@ -159,6 +159,22 @@ final class StartupTests: XCTestCase {
         try await first.value
     }
 
+    func testCustomMultilineCommandPersistsAndRunsInChosenDirectory() async throws {
+        let store = makeStore()
+        try await waitUntil { store.hasCompletedStartup }
+        let script = ScriptEntry(id: UUID(), name: "Custom command",
+                                 command: "printf 'first\\n' > custom-output\nprintf 'second\\n' >> custom-output",
+                                 workingDirectory: directory.path, isEnabled: true)
+        scriptsToStop.append(script.id)
+        store.upsert(script)
+        XCTAssertEqual(try repository.load().first?.command, script.command)
+        XCTAssertFalse(store.isRunning(script), "Saving a custom command must not execute it")
+        store.run(script)
+        try await waitUntil { manager.status(for: script.id).exitCode != nil }
+        XCTAssertEqual(manager.status(for: script.id).status, .success)
+        XCTAssertEqual(try String(contentsOf: directory.appendingPathComponent("custom-output"), encoding: .utf8), "first\nsecond\n")
+    }
+
     func testSettingsPersistLanguageAndProcessChangesReachCoordinator() async throws {
         let settings = AppSettings(defaults: defaults, managesLoginItem: false)
         settings.language = .chinese

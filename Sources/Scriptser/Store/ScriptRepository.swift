@@ -34,6 +34,11 @@ final class ScriptRepository {
 
     init(configURL: URL? = nil) throws {
         self.configURL = try configURL ?? Self.resolveConfigURL()
+        do {
+            try fileManager.createDirectory(at: self.configURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        } catch {
+            throw RepositoryError.directoryCreationFailed(underlying: error)
+        }
         logger.info("Repository initialized with config at: \(self.configURL.path)")
     }
 

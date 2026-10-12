@@ -17,20 +17,20 @@ Or open `Scriptser.xcodeproj` and run the Scriptser scheme in Xcode. The applica
 - **Enabled** controls whether a script can run, including **Run All**.
 - **Run when Scriptser launches** automatically runs an enabled script once when the app starts. This is independent of **Launch at Login**, which starts the app when you sign in to your Mac.
 - On restart, Scriptser restores tracked processes that are still running before starting automatic scripts, avoiding duplicate runs. Old configurations default to automatic execution off. Changing the switch or importing scripts applies on the next app launch.
-- Commands are fully custom. The former Docker Quick Commands and pattern-based quick actions have been removed; saved script commands remain intact.
+- Choose **Add Custom Command…** in Manager or the menu bar to save any command or multiline script. Commands are fully custom. The former Docker Quick Commands and pattern-based quick actions have been removed; saved script commands remain intact.
 - Use **Output** for live output, copying, clearing, and automatic scrolling. Output buffers are in memory and do not survive app restarts.
 
 ## Language and navigation
 
 Choose **Follow System**, **简体中文**, or **English** in Manager. Language changes apply immediately to the menu, editor, output viewer, and app error messages, and are remembered across launches. Commands, script names, and raw shell output remain as entered.
 
-Manager has **All Scripts**, **Running**, and **At Launch** filters. Search matches names, commands, directories, and tags. The menu bar list scrolls when there are many scripts.
+Manager has **All Scripts**, **Running**, and **At Launch** filters. Search matches names, commands, directories, and tags. The menu bar shows script names and live status, and scrolls when there are many scripts. Manager, the application menu, and DEV Dock activation reuse a single management window; settings are part of that window.
 
 Shortcuts: ⌘N to add a script, ⌘F to search, ⌘S to save in the editor, ⇧⌘R to run all, ⇧⌘. to stop all, and Escape to close a dialog.
 
 ## Updates
 
-**Check for Updates…** is available in Manager and the menu bar. It contacts the public GitHub API for the latest stable release from [zero-times/scriptser Releases](https://github.com/zero-times/scriptser/releases). Checks run only when requested; drafts and prereleases are excluded, and equal or older versions are never offered as updates.
+**Check for Updates…** is available in Manager and the menu bar. It contacts the public GitHub API for the latest stable release from [zero-times/scriptser Releases](https://github.com/zero-times/scriptser/releases). Concurrent checks share one request, and checks within 60 seconds reuse the result. If GitHub returns an API quota error, Scriptser checks the official latest-release webpage and avoids retrying the API until its quota reset. In this fallback, package metadata is unavailable, so use **Visit Releases** to download the installer. Errors are presented only at the initiating update control. Checks run only when requested; drafts and prereleases are excluded, and equal or older versions are never offered as updates.
 
 For a newer release, view the release notes and choose **Download Update…**. Scriptser selects a compatible macOS `.dmg`, `.zip`, or `.pkg`, saves it to your chosen location, and verifies its size and GitHub's SHA-256 digest when provided. **Open Download** opens the package for installation. Quit Scriptser and replace the application in Applications (or complete the package installer); scripts and preferences stay in their existing locations. Scriptser does not replace a running application itself.
 
@@ -56,3 +56,7 @@ xcodebuild -project Scriptser.xcodeproj -scheme Scriptser -configuration Debug C
 Tests use temporary configuration files and isolated preferences to cover configuration compatibility, language resources, automatic execution, process recovery, duplicate prevention, failure handling, GitHub version checks, package selection, and verified update downloads.
 
 macOS Login Items registration requires a properly bundled application. If macOS requests approval, enable Scriptser in System Settings → General → Login Items. Validate login registration in the signed application on the target Mac.
+
+## Local DEV app
+
+Run `zsh tools/build-dev.sh` to build a DEV app from the same entry point and views as the shipping app. DEV uses `~/Library/Application Support/Scriptser-DEV/config.json`, keeps its own preferences, and does not register a login item. Its single manager window is also reachable from the Dock. The build is ad-hoc signed for local verification.
