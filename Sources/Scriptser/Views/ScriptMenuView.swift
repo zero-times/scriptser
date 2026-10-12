@@ -46,6 +46,7 @@ struct ScriptMenuView: View {
                 .frame(maxHeight: 320)
             }
             Divider()
+            UpdateControlsView()
             HStack {
                 Text(L10n.format("%d running", store.scripts.filter { store.isRunning($0) }.count))
                     .font(.caption).foregroundStyle(.secondary)

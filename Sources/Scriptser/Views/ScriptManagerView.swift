@@ -51,6 +51,7 @@ struct ScriptManagerView: View {
             footerView
             Divider()
             settingsView
+            UpdateControlsView()
         }
         .padding(20)
         .frame(minWidth: 780, minHeight: 540)

@@ -21,6 +21,8 @@
 		A1B2C3D4E5F60718293A4B73 /* ScriptModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B83 /* ScriptModels.swift */; };
 		B10000000000000000000001 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* Localization.swift */; };
 		B10000000000000000000003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* Localizable.strings */; };
+		B10000000000000000000007 /* AppUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* AppUpdateManager.swift */; };
+		B10000000000000000000009 /* UpdateControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* UpdateControlsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 		B10000000000000000000002 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		B10000000000000000000005 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B10000000000000000000006 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "Resources/zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		B10000000000000000000008 /* AppUpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateManager.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* UpdateControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateControlsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +61,7 @@
 		0468CEC22F2B098F0060CE5A /* Store */ = {
 			isa = PBXGroup;
 			children = (
+				B10000000000000000000008 /* AppUpdateManager.swift */,
 				0468CEBE2F2B098F0060CE5A /* AppSettings.swift */,
 				0468CEBF2F2B098F0060CE5A /* ProcessManager.swift */,
 				0468CEC02F2B098F0060CE5A /* ScriptRepository.swift */,
@@ -77,6 +82,7 @@
 		0468CEC62F2B098F0060CE5A /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B10000000000000000000010 /* UpdateControlsView.swift */,
 				0468CEC52F2B098F0060CE5A /* StatusBadge.swift */,
 			);
 			path = Components;
@@ -188,6 +194,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1B2C3D4E5F60718293A4B70 /* ScriptserApp.swift in Sources */,
+				B10000000000000000000007 /* AppUpdateManager.swift in Sources */,
+				B10000000000000000000009 /* UpdateControlsView.swift in Sources */,
 				B10000000000000000000001 /* Localization.swift in Sources */,
 				0468CECC2F2B098F0060CE5A /* ScriptEditorView.swift in Sources */,
 				0468CECD2F2B098F0060CE5A /* StatusBadge.swift in Sources */,

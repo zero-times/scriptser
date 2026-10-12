@@ -12,6 +12,7 @@ enum ScriptStoreError: LocalizedError {
     case importError(Error)
     case exportError(Error)
     case settingsError(String)
+    case updateError(AppUpdateError)
 
     var errorDescription: String? {
         switch self {
@@ -25,6 +26,8 @@ enum ScriptStoreError: LocalizedError {
             return L10n.format("Export failed: %@", error.localizedDescription)
         case .settingsError(let message):
             return message
+        case .updateError(let error):
+            return error.localizedDescription
         }
     }
 }
@@ -45,6 +48,7 @@ final class ScriptStore: ObservableObject {
     private var repository: ScriptRepository?
     let processManager: ProcessManager
     let settings: AppSettings
+    let updateManager = AppUpdateManager()
     private var subscriptions = Set<AnyCancellable>()
 
     // State
@@ -80,6 +84,13 @@ final class ScriptStore: ObservableObject {
         self.settings.$lastError
             .compactMap { $0 }
             .sink { [weak self] message in self?.lastError = .settingsError(message) }
+            .store(in: &subscriptions)
+        updateManager.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &subscriptions)
+        updateManager.$lastError
+            .compactMap { $0 }
+            .sink { [weak self] error in self?.lastError = .updateError(error) }
             .store(in: &subscriptions)
 
         do {
