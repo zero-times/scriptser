@@ -15,12 +15,14 @@ struct ScriptserApp: App {
         MenuBarExtra("Scriptser", systemImage: "terminal.fill") {
             ScriptMenuView()
                 .environmentObject(store)
+                .environment(\.locale, store.settings.language.locale)
         }
         .menuBarExtraStyle(.window)
 
         Settings {
             ScriptManagerView()
                 .environmentObject(store)
+                .environment(\.locale, store.settings.language.locale)
         }
     }
 }

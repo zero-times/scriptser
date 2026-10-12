@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Visual status indicator badge
 struct StatusBadge: View {
+    @Environment(\.locale) private var locale
     let status: RunStatus
 
     var body: some View {
@@ -9,7 +10,7 @@ struct StatusBadge: View {
             Circle()
                 .fill(status.color)
                 .frame(width: 8, height: 8)
-            Text(status.label)
+            Text(L10n.text(status.localizationKey, language: AppLanguage(rawValue: locale.identifier) ?? .current))
         }
     }
 }

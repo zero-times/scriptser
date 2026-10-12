@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import AppKit
 import SwiftUI
 import os.log
@@ -10,6 +11,7 @@ enum ScriptStoreError: LocalizedError {
     case processError(ProcessError)
     case importError(Error)
     case exportError(Error)
+    case settingsError(String)
 
     var errorDescription: String? {
         switch self {
@@ -18,9 +20,11 @@ enum ScriptStoreError: LocalizedError {
         case .processError(let error):
             return error.localizedDescription
         case .importError(let error):
-            return "Import failed: \(error.localizedDescription)"
+            return L10n.format("Import failed: %@", error.localizedDescription)
         case .exportError(let error):
-            return "Export failed: \(error.localizedDescription)"
+            return L10n.format("Export failed: %@", error.localizedDescription)
+        case .settingsError(let message):
+            return message
         }
     }
 }
@@ -41,30 +45,55 @@ final class ScriptStore: ObservableObject {
     private var repository: ScriptRepository?
     let processManager: ProcessManager
     let settings: AppSettings
+    private var subscriptions = Set<AnyCancellable>()
 
     // State
     @Published var scripts: [ScriptEntry] = []
     @Published var lastError: ScriptStoreError?
     @Published var searchQuery: String = ""
+    @Published private(set) var isReady = false
+    @Published private(set) var hasCompletedStartup = false
 
     /// Filtered scripts based on search query
     var filteredScripts: [ScriptEntry] {
-        guard !searchQuery.isEmpty else { return scripts }
-        let query = searchQuery.lowercased()
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !query.isEmpty else { return scripts }
         return scripts.filter {
             $0.name.lowercased().contains(query) ||
-            $0.command.lowercased().contains(query)
+            $0.command.lowercased().contains(query) ||
+            $0.workingDirectory.lowercased().contains(query) ||
+            $0.tags.contains { $0.lowercased().contains(query) }
         }
     }
 
-    init() {
-        self.processManager = ProcessManager()
-        self.settings = AppSettings()
+    init(repository: ScriptRepository? = nil, settings: AppSettings? = nil, processManager: ProcessManager? = nil) {
+        self.processManager = processManager ?? ProcessManager()
+        self.settings = settings ?? AppSettings()
+
+        // Nested ObservableObjects must invalidate the coordinator's views too.
+        self.processManager.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &subscriptions)
+        self.settings.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &subscriptions)
+        self.settings.$lastError
+            .compactMap { $0 }
+            .sink { [weak self] message in self?.lastError = .settingsError(message) }
+            .store(in: &subscriptions)
 
         do {
-            self.repository = try ScriptRepository()
+            self.repository = try repository ?? ScriptRepository()
             load()
-            processManager.syncRunningStates(for: scripts)
+            Task {
+                // Complete recovery before considering any automatic execution.
+                await self.processManager.syncRunningStates(for: scripts)
+                isReady = true
+                for script in scripts where script.isEnabled && script.runAtLaunch && !isRunning(script) {
+                    await execute(script)
+                }
+                hasCompletedStartup = true
+            }
         } catch {
             logger.error("Failed to initialize repository: \(error.localizedDescription)")
             if let repoError = error as? RepositoryError {
@@ -72,6 +101,11 @@ final class ScriptStore: ObservableObject {
             } else {
                 lastError = .repositoryError(.loadFailed(underlying: error))
             }
+        }
+
+        if self.repository == nil {
+            isReady = true
+            hasCompletedStartup = true
         }
 
         logger.info("ScriptStore initialized with \(self.scripts.count) scripts")
@@ -120,19 +154,21 @@ final class ScriptStore: ObservableObject {
     }
 
     func run(_ script: ScriptEntry) {
-        Task {
-            do {
-                try await processManager.run(script)
-                // Update lastRunAt
-                if let index = scripts.firstIndex(where: { $0.id == script.id }) {
-                    scripts[index].lastRunAt = Date()
-                    save()
-                }
-            } catch {
-                logger.error("Failed to run script: \(error.localizedDescription)")
-                if let processError = error as? ProcessError {
-                    lastError = .processError(processError)
-                }
+        guard isReady else { return }
+        Task { await execute(script) }
+    }
+
+    private func execute(_ script: ScriptEntry) async {
+        do {
+            try await processManager.run(script)
+            if let index = scripts.firstIndex(where: { $0.id == script.id }) {
+                scripts[index].lastRunAt = Date()
+                save()
+            }
+        } catch {
+            logger.error("Failed to run script: \(error.localizedDescription)")
+            if let processError = error as? ProcessError {
+                lastError = .processError(processError)
             }
         }
     }
@@ -144,7 +180,7 @@ final class ScriptStore: ObservableObject {
     }
 
     func runAll() {
-        scripts.filter { $0.isEnabled }.forEach { run($0) }
+        scripts.filter { $0.isEnabled && !isRunning($0) }.forEach { run($0) }
     }
 
     func stopAll() {
@@ -173,6 +209,8 @@ final class ScriptStore: ObservableObject {
 
     func importScripts(from url: URL, mergeStrategy: ImportMergeStrategy = .append) {
         do {
+            let accessed = url.startAccessingSecurityScopedResource()
+            defer { if accessed { url.stopAccessingSecurityScopedResource() } }
             let imported = try repository?.importScripts(from: url) ?? []
 
             switch mergeStrategy {

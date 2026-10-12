@@ -7,6 +7,7 @@ struct ScriptEntry: Identifiable, Codable, Equatable {
     var command: String
     var workingDirectory: String
     var isEnabled: Bool
+    var runAtLaunch: Bool
     var tags: [String]
     var createdAt: Date
     var lastRunAt: Date?
@@ -32,6 +33,7 @@ struct ScriptEntry: Identifiable, Codable, Equatable {
         command = try container.decode(String.self, forKey: .command)
         workingDirectory = try container.decode(String.self, forKey: .workingDirectory)
         isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+        runAtLaunch = try container.decodeIfPresent(Bool.self, forKey: .runAtLaunch) ?? false
         tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
         lastRunAt = try container.decodeIfPresent(Date.self, forKey: .lastRunAt)
@@ -43,6 +45,7 @@ struct ScriptEntry: Identifiable, Codable, Equatable {
         command: String,
         workingDirectory: String,
         isEnabled: Bool,
+        runAtLaunch: Bool = false,
         tags: [String] = [],
         createdAt: Date = Date(),
         lastRunAt: Date? = nil
@@ -52,6 +55,7 @@ struct ScriptEntry: Identifiable, Codable, Equatable {
         self.command = command
         self.workingDirectory = workingDirectory
         self.isEnabled = isEnabled
+        self.runAtLaunch = runAtLaunch
         self.tags = tags
         self.createdAt = createdAt
         self.lastRunAt = lastRunAt
@@ -66,6 +70,10 @@ enum RunStatus: String, Codable {
     case stopped
 
     var label: String {
+        L10n.text(localizationKey)
+    }
+
+    var localizationKey: String {
         switch self {
         case .idle: return "Idle"
         case .running: return "Running"

@@ -77,15 +77,15 @@ enum ProcessError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .scriptDisabled:
-            return "Script is disabled"
+            return L10n.text("Script is disabled")
         case .emptyCommand:
-            return "Command is empty"
+            return L10n.text("Command is empty")
         case .alreadyRunning:
-            return "Script is already running"
+            return L10n.text("Script is already running")
         case .startFailed(let error):
-            return "Failed to start: \(error.localizedDescription)"
+            return L10n.format("Failed to start: %@", error.localizedDescription)
         case .notRunning:
-            return "Script is not running"
+            return L10n.text("Script is not running")
         }
     }
 }
@@ -101,6 +101,7 @@ private struct PersistedRunState: Codable {
 final class ProcessManager: ObservableObject {
     private let logger = AppLogger.process
     private let processState = ProcessState()
+    private let defaults: UserDefaults
     private let persistedStateKey = "scriptserRunState"
 
     @Published var runStates: [UUID: ScriptRunState] = [:]
@@ -108,7 +109,8 @@ final class ProcessManager: ObservableObject {
     /// Callback for state changes
     var onStateChange: ((UUID, ScriptRunState) -> Void)?
 
-    init() {
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
         logger.info("ProcessManager initialized")
     }
 
@@ -129,6 +131,7 @@ final class ProcessManager: ObservableObject {
     }
 
     func run(_ script: ScriptEntry) async throws {
+        guard !isRunning(script.id) else { throw ProcessError.alreadyRunning }
         guard script.isEnabled else {
             updateState(script.id, ScriptRunState(
                 status: .failed,
@@ -138,10 +141,6 @@ final class ProcessManager: ObservableObject {
                 exitCode: nil
             ))
             throw ProcessError.scriptDisabled
-        }
-
-        guard await !processState.hasRunningProcess(for: script.id) else {
-            throw ProcessError.alreadyRunning
         }
 
         let trimmedCommand = script.command.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -175,7 +174,7 @@ final class ProcessManager: ObservableObject {
         let startTime = Date()
         updateState(script.id, ScriptRunState(
             status: .running,
-            lastMessage: "Running",
+            lastMessage: L10n.text("Running"),
             startedAt: startTime,
             endedAt: nil,
             exitCode: nil
@@ -241,14 +240,14 @@ final class ProcessManager: ObservableObject {
 
         updateState(scriptId, ScriptRunState(
             status: .stopped,
-            lastMessage: "Stopped by user",
+            lastMessage: L10n.text("Stopped by user"),
             startedAt: status(for: scriptId).startedAt,
             endedAt: Date(),
             exitCode: nil
         ))
     }
 
-    func syncRunningStates(for scripts: [ScriptEntry]) {
+    func syncRunningStates(for scripts: [ScriptEntry]) async {
         var persistedStates = loadPersistedRunStates()
         let validIds = Set(scripts.map { $0.id.uuidString })
 
@@ -263,24 +262,19 @@ final class ProcessManager: ObservableObject {
             guard let persisted = persistedStates[script.id.uuidString] else { continue }
 
             if isProcessRunning(pid: persisted.pid) {
-                Task {
-                    await processState.restoreProcessId(persisted.pid, for: script.id)
-                }
+                await processState.restoreProcessId(persisted.pid, for: script.id)
                 updateState(script.id, ScriptRunState(
                     status: .running,
-                    lastMessage: "Running (restored)",
+                    lastMessage: L10n.text("Running (restored)"),
                     startedAt: Date(timeIntervalSince1970: persisted.startedAt),
                     endedAt: nil,
                     exitCode: nil
                 ))
                 logger.info("Restored running state for script: \(script.id)")
             } else {
-                Task {
-                    await processState.clearProcess(for: script.id)
-                }
-                var updatedStates = persistedStates
-                updatedStates.removeValue(forKey: script.id.uuidString)
-                savePersistedRunStates(updatedStates)
+                await processState.clearProcess(for: script.id)
+                persistedStates.removeValue(forKey: script.id.uuidString)
+                savePersistedRunStates(persistedStates)
                 updateState(script.id, .idle)
             }
         }
@@ -300,13 +294,13 @@ final class ProcessManager: ObservableObject {
 
         if wasStopped {
             status = .stopped
-            message = "Stopped by user"
+            message = L10n.text("Stopped by user")
         } else if exitCode == 0 {
             status = .success
-            message = "Exit code 0"
+            message = L10n.format("Exit code %d", 0)
         } else {
             status = .failed
-            message = "Exit code \(exitCode)"
+            message = L10n.format("Exit code %d", exitCode)
         }
 
         logger.info("Script \(scriptId) terminated with status: \(status.rawValue), exit code: \(exitCode)")
@@ -346,7 +340,7 @@ final class ProcessManager: ObservableObject {
     }
 
     private func loadPersistedRunStates() -> [String: PersistedRunState] {
-        guard let data = UserDefaults.standard.data(forKey: persistedStateKey) else {
+        guard let data = defaults.data(forKey: persistedStateKey) else {
             return [:]
         }
         return (try? JSONDecoder().decode([String: PersistedRunState].self, from: data)) ?? [:]
@@ -354,7 +348,7 @@ final class ProcessManager: ObservableObject {
 
     private func savePersistedRunStates(_ states: [String: PersistedRunState]) {
         if let data = try? JSONEncoder().encode(states) {
-            UserDefaults.standard.set(data, forKey: persistedStateKey)
+            defaults.set(data, forKey: persistedStateKey)
         }
     }
 }

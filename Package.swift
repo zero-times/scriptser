@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Scriptser",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v13)
     ],
@@ -12,7 +13,9 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "Scriptser",
-            path: "Sources"
-        )
+            path: "Sources/Scriptser",
+            resources: [.process("Resources")]
+        ),
+        .testTarget(name: "ScriptserTests", dependencies: ["Scriptser"])
     ]
 )

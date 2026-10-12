@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Combine
 
 /// View for displaying and managing script output
 struct OutputViewerView: View {
@@ -29,25 +30,21 @@ struct OutputViewerView: View {
             await loadOutput()
         }
         .onReceive(timer) { _ in
-            if store.isRunning(script) {
-                Task {
-                    await loadOutput()
-                }
-            }
+            Task { await loadOutput() }
         }
     }
 
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("Output: \(script.name.isEmpty ? "Untitled Script" : script.name)")
+                Text(L10n.format("Output: %@", script.name.isEmpty ? L10n.text("Untitled Script") : script.name))
                     .font(.headline)
 
                 let state = store.status(for: script)
                 HStack(spacing: 8) {
                     StatusBadge(status: state.status)
                     if let duration = state.formattedDuration {
-                        Text("Duration: \(duration)")
+                        Text(L10n.format("Duration: %@", duration))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -56,7 +53,7 @@ struct OutputViewerView: View {
 
             Spacer()
 
-            Toggle("Auto-scroll", isOn: $autoScroll)
+            Toggle(L10n.text("Auto-scroll"), isOn: $autoScroll)
                 .toggleStyle(.checkbox)
 
             Button {
@@ -67,7 +64,7 @@ struct OutputViewerView: View {
                 Image(systemName: "arrow.clockwise")
             }
             .disabled(isLoading)
-            .help("Refresh output")
+            .help(L10n.text("Refresh output")).accessibilityLabel(L10n.text("Refresh output"))
 
             Button {
                 Task {
@@ -77,19 +74,21 @@ struct OutputViewerView: View {
             } label: {
                 Image(systemName: "trash")
             }
-            .help("Clear output")
+            .help(L10n.text("Clear output")).accessibilityLabel(L10n.text("Clear output"))
         }
     }
 
     private var outputScrollView: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                Text(output.isEmpty ? "No output yet..." : output)
-                    .font(.system(.body, design: .monospaced))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .textSelection(.enabled)
-                    .padding(8)
-                    .id("output-bottom")
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(output.isEmpty ? L10n.text("No output yet...") : output)
+                        .font(.system(.body, design: .monospaced))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
+                        .padding(8)
+                    Color.clear.frame(height: 1).id("output-bottom")
+                }
             }
             .onChange(of: output) { newValue in
                 if autoScroll {
@@ -110,30 +109,30 @@ struct OutputViewerView: View {
 
     private var footerView: some View {
         HStack {
-            Text("\(output.count) characters")
+            Text(L10n.format("%d characters", output.count))
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             if store.isRunning(script) {
                 ProgressView()
                     .scaleEffect(0.5)
-                Text("Live")
+                Text(L10n.text("Live"))
                     .font(.caption)
                     .foregroundColor(.orange)
             }
 
             Spacer()
 
-            Button("Copy All") {
+            Button(L10n.text("Copy All")) {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(output, forType: .string)
             }
             .disabled(output.isEmpty)
 
-            Button("Close") {
+            Button(L10n.text("Close")) {
                 dismiss()
             }
-            .keyboardShortcut(.escape)
+            .keyboardShortcut(.cancelAction)
         }
     }
 

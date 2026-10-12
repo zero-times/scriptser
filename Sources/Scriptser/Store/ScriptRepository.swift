@@ -12,15 +12,15 @@ enum RepositoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .loadFailed(let error):
-            return "Failed to load scripts: \(error.localizedDescription)"
+            return L10n.format("Failed to load scripts: %@", error.localizedDescription)
         case .saveFailed(let error):
-            return "Failed to save scripts: \(error.localizedDescription)"
+            return L10n.format("Failed to save scripts: %@", error.localizedDescription)
         case .encodingFailed(let error):
-            return "Failed to encode scripts: \(error.localizedDescription)"
+            return L10n.format("Failed to encode scripts: %@", error.localizedDescription)
         case .decodingFailed(let error):
-            return "Failed to decode scripts: \(error.localizedDescription)"
+            return L10n.format("Failed to decode scripts: %@", error.localizedDescription)
         case .directoryCreationFailed(let error):
-            return "Failed to create config directory: \(error.localizedDescription)"
+            return L10n.format("Failed to create config directory: %@", error.localizedDescription)
         }
     }
 }
@@ -32,8 +32,8 @@ final class ScriptRepository {
     private let configURL: URL
     private let fileManager = FileManager.default
 
-    init() throws {
-        self.configURL = try Self.resolveConfigURL()
+    init(configURL: URL? = nil) throws {
+        self.configURL = try configURL ?? Self.resolveConfigURL()
         logger.info("Repository initialized with config at: \(self.configURL.path)")
     }
 
