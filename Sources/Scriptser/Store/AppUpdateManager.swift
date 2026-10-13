@@ -163,7 +163,7 @@ final class AppUpdateManager: ObservableObject {
         self.now = now
         self.downloadOverride = download
         self.currentVersion = currentVersion
-            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.0"
+            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.1"
     }
 
     /// False means another surface already owns the in-flight check.
