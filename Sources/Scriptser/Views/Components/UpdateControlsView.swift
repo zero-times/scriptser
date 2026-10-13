@@ -68,8 +68,13 @@ struct UpdateDetailsView: View {
                 .frame(minHeight: 120, maxHeight: 220)
                 .background(Color(nsColor: .textBackgroundColor))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-                Text(L10n.text("Open the downloaded package, quit Scriptser, and replace the app in Applications. Your scripts and preferences are kept."))
-                    .font(.caption).foregroundStyle(.secondary)
+                if store.updateManager.canApplyUpdateInPlace {
+                    Text(L10n.text("The update downloads, verifies, replaces the app, and restarts Scriptser automatically. Scripts and preferences are kept."))
+                        .font(.caption).foregroundStyle(.secondary)
+                } else {
+                    Text(L10n.text("Open the downloaded package, quit Scriptser, and replace the app in Applications. Your scripts and preferences are kept."))
+                        .font(.caption).foregroundStyle(.secondary)
+                }
                 if store.updateManager.package == nil {
                     Text(L10n.text(store.updateManager.usesWebsiteFallback
                         ? "Version checked via the release page. Visit Releases to download the installer."
@@ -77,9 +82,7 @@ struct UpdateDetailsView: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
-            if store.updateManager.isDownloading {
-                ProgressView(L10n.text("Downloading and verifying update..."))
-            }
+            progressSection
             if let url = store.updateManager.downloadedURL {
                 Label(L10n.text("Update downloaded. Open the package to install."), systemImage: "checkmark.circle")
                     .foregroundStyle(.green)
@@ -91,18 +94,55 @@ struct UpdateDetailsView: View {
                 Spacer()
                 Button(L10n.text("Close")) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .disabled(store.updateManager.isDownloading)
+                    .disabled(store.updateManager.isDownloading || store.updateManager.isApplyingUpdate)
                 if store.updateManager.downloadedURL == nil, store.updateManager.package != nil {
-                    Button(L10n.text("Download Update...")) { chooseDestination() }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(store.updateManager.isDownloading)
+                    if store.updateManager.canApplyUpdateInPlace {
+                        Button(L10n.text("Install and Restart")) { installUpdate() }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(store.updateManager.isDownloading || store.updateManager.isApplyingUpdate)
+                    } else {
+                        Button(L10n.text("Download Update...")) { chooseDestination() }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(store.updateManager.isDownloading)
+                    }
                 }
             }
         }
         .padding(20)
         .frame(width: 580)
-        .interactiveDismissDisabled(store.updateManager.isDownloading)
+        .interactiveDismissDisabled(store.updateManager.isDownloading || store.updateManager.isApplyingUpdate)
         .errorAlert($downloadError)
+    }
+
+    @ViewBuilder
+    private var progressSection: some View {
+        switch store.updateManager.phase {
+        case .downloading:
+            if let progress = store.updateManager.downloadProgress {
+                ProgressView(value: progress) {
+                    Text(L10n.text("Downloading update..."))
+                } currentValueLabel: {
+                    Text("\(Int((progress * 100).rounded()))%")
+                }
+            } else {
+                ProgressView(L10n.text("Downloading update..."))
+            }
+        case .verifying:
+            ProgressView(L10n.text("Verifying update..."))
+        case .preparing:
+            ProgressView(L10n.text("Preparing update..."))
+        case .installing, .restarting:
+            ProgressView(L10n.text("Installing update..."))
+        case .idle, .checking:
+            EmptyView()
+        }
+    }
+
+    private func installUpdate() {
+        Task {
+            await store.updateManager.installUpdateAndRestart()
+            if let error = store.updateManager.lastError { downloadError = .updateError(error) }
+        }
     }
 
     private func chooseDestination() {

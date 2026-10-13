@@ -224,6 +224,35 @@ final class UpdateCheckTests: XCTestCase {
         }
     }
 
+    func testStreamedDownloadReportsProgressAndVerifies() async throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("scriptser-stream-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let bytes = Data(repeating: 0x5A, count: 512)
+        let digest = "sha256:" + SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        UpdateResponseProtocol.handler = { request in
+            if request.url?.host == "api.github.com" {
+                let release = """
+                {"tag_name":"v1.1.0","html_url":"https://github.com/zero-times/scriptser/releases/tag/v1.1.0","draft":false,"prerelease":false,"assets":[
+                  {"name":"Scriptser-universal.dmg","size":\(bytes.count),"digest":"\(digest)","browser_download_url":"https://github.com/zero-times/scriptser/releases/download/v1.1.0/Scriptser-universal.dmg"}
+                ]}
+                """.data(using: .utf8)!
+                return (200, release, nil, ["Content-Type": "application/json"])
+            }
+            return (200, bytes, nil, ["Content-Length": "\(bytes.count)"])
+        }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UpdateResponseProtocol.self]
+        let update = AppUpdateManager(session: URLSession(configuration: configuration), currentVersion: "1.0.0")
+        await update.checkForUpdates()
+        XCTAssertEqual(update.state, .available)
+        let destination = folder.appendingPathComponent("streamed.dmg")
+        await update.downloadUpdate(to: destination)
+        XCTAssertNil(update.lastError)
+        XCTAssertEqual(update.downloadProgress, 1)
+        XCTAssertEqual(try Data(contentsOf: destination), bytes)
+    }
+
     func testUpdateFailureIsNotBroadcastAsAnAlertToEveryStoreView() async throws {
         let update = manager(status: 403)
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

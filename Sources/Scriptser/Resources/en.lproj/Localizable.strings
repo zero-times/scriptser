@@ -109,6 +109,16 @@
 "The downloaded update failed verification. Please download it again." = "The downloaded update failed verification. Please download it again.";
 "Update request failed: %@" = "Update request failed: %@";
 "GitHub’s request limit has been reached. Try later or visit Releases." = "GitHub’s request limit has been reached. Try later or visit Releases.";
+"The update downloads, verifies, replaces the app, and restarts Scriptser automatically. Scripts and preferences are kept." = "The update downloads, verifies, replaces the app, and restarts Scriptser automatically. Scripts and preferences are kept.";
+"Downloading update..." = "Downloading update...";
+"Verifying update..." = "Verifying update...";
+"Preparing update..." = "Preparing update...";
+"Installing update..." = "Installing update...";
+"Install and Restart" = "Install and Restart";
+"Automatic installation supports DMG or ZIP update packages." = "Automatic installation supports DMG or ZIP update packages.";
+"The update package could not be mounted." = "The update package could not be mounted.";
+"The update package does not contain the Scriptser app." = "The update package does not contain the Scriptser app.";
+"Update installation failed: %@" = "Update installation failed: %@";
 
 "Add Custom Command..." = "Add Custom Command...";
 

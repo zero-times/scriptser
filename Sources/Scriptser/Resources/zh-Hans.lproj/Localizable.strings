@@ -109,6 +109,16 @@
 "The downloaded update failed verification. Please download it again." = "下载的更新包校验失败，请重新下载。";
 "Update request failed: %@" = "更新请求失败：%@";
 "GitHub’s request limit has been reached. Try later or visit Releases." = "GitHub 请求次数达到上限，请稍后重试或前往发布页面。";
+"The update downloads, verifies, replaces the app, and restarts Scriptser automatically. Scripts and preferences are kept." = "更新会自动下载、校验并替换应用，然后重启 Scriptser。脚本和偏好设置会保留。";
+"Downloading update..." = "正在下载更新…";
+"Verifying update..." = "正在校验更新…";
+"Preparing update..." = "正在准备更新…";
+"Installing update..." = "正在安装更新…";
+"Install and Restart" = "安装并重启";
+"Automatic installation supports DMG or ZIP update packages." = "自动安装支持 DMG 或 ZIP 格式的更新包。";
+"The update package could not be mounted." = "无法挂载更新包。";
+"The update package does not contain the Scriptser app." = "更新包中未找到 Scriptser 应用。";
+"Update installation failed: %@" = "更新安装失败：%@";
 
 "Add Custom Command..." = "添加自定义命令…";
 
