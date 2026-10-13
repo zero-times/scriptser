@@ -5,6 +5,7 @@ import SwiftUI
 struct ScriptMenuView: View {
     @EnvironmentObject private var store: ScriptStore
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismiss) private var dismissMenu
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -61,6 +62,11 @@ struct ScriptMenuView: View {
     }
 
     private func showManager() {
+        // Dismiss the menu bar popover before opening the Manager window.
+        dismissMenu()
+        if let keyWindow = NSApp.keyWindow {
+            keyWindow.performClose(nil)
+        }
         openWindow(id: ScriptserApp.managerWindowID)
         NSApp.activate(ignoringOtherApps: true)
     }
