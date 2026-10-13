@@ -196,16 +196,54 @@ final class UpdateCheckTests: XCTestCase {
         XCTAssertEqual(update.latestRelease?.tagName, "v1.0.0")
         XCTAssertNil(update.lastError)
         XCTAssertTrue(update.usesWebsiteFallback)
-        XCTAssertNil(update.package, "Web fallback must not invent size or digest metadata")
+        XCTAssertNil(update.package, "No published checksums means manual install only")
         await update.checkForUpdates()
-        XCTAssertEqual(UpdateResponseProtocol.requests.count, 2)
+        XCTAssertEqual(UpdateResponseProtocol.requests.count, 3)
         clock = clock.addingTimeInterval(61)
         await update.checkForUpdates()
         XCTAssertEqual(UpdateResponseProtocol.requests.filter { $0.host == "api.github.com" }.count, 1)
-        XCTAssertEqual(UpdateResponseProtocol.requests.filter { $0.host == "github.com" }.count, 2)
+        XCTAssertEqual(UpdateResponseProtocol.requests.filter { $0.host == "github.com" }.count, 4)
         clock = Date(timeIntervalSince1970: 2001)
         await update.checkForUpdates()
         XCTAssertEqual(UpdateResponseProtocol.requests.filter { $0.host == "api.github.com" }.count, 2)
+    }
+
+    func testRateLimitedFallbackInstallsUsingPublishedChecksums() async throws {
+        let bytes = Data(repeating: 0x5A, count: 512)
+        let digest = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        let checksums = "\(digest)  Scriptser-1.2.4-universal.dmg\n"
+        UpdateResponseProtocol.handler = { request in
+            let path = request.url!.path
+            if path.hasPrefix("/zero-times/scriptser/releases/download/") {
+                if path.hasSuffix("SHA256SUMS.txt") {
+                    return (200, Data(checksums.utf8), nil, ["Content-Type": "text/plain"])
+                }
+                return (200, bytes, nil, ["Content-Type": "application/x-apple-diskimage"])
+            }
+            if request.url?.host == "api.github.com" {
+                return (403, Data(#"{"message":"API rate limit exceeded"}"#.utf8), nil,
+                        ["X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "2000"])
+            }
+            return (200, Data(), URL(string: "https://github.com/zero-times/scriptser/releases/tag/v1.2.4"), [:])
+        }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UpdateResponseProtocol.self]
+        let update = AppUpdateManager(session: URLSession(configuration: configuration), currentVersion: "1.2.2")
+        await update.checkForUpdates()
+
+        XCTAssertEqual(update.state, .available)
+        XCTAssertEqual(update.latestRelease?.tagName, "v1.2.4")
+        XCTAssertTrue(update.usesWebsiteFallback)
+        let asset = try XCTUnwrap(update.package, "Checksum fallback must expose installable package")
+        XCTAssertEqual(asset.name, "Scriptser-1.2.4-universal.dmg")
+        XCTAssertEqual(asset.digest, "sha256:\(digest)")
+        XCTAssertTrue(asset.isTrustedPackage)
+
+        let temporary = FileManager.default.temporaryDirectory
+            .appendingPathComponent("scriptser-fallback-\(UUID().uuidString).download")
+        defer { try? FileManager.default.removeItem(at: temporary) }
+        try bytes.write(to: temporary)
+        XCTAssertNoThrow(try AppUpdateManager.verifyDownload(at: temporary, asset: asset))
     }
 
     func testWebsiteFallbackRejectsUnexpectedDestinationsAndPrereleaseTags() async {

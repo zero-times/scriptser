@@ -40,8 +40,15 @@ struct GitHubRelease: Decodable, Sendable {
             return url.scheme == "https" && url.host == "github.com"
                 && url.path.hasPrefix("/zero-times/scriptser/releases/download/")
                 && name == (name as NSString).lastPathComponent
-                && ["dmg", "zip", "pkg"].contains(ext) && size > 0
+                && ["dmg", "zip", "pkg"].contains(ext) && (size > 0 || digest != nil)
                 && !name.lowercased().contains("source")
+        }
+
+        init(name: String, browserDownloadURL: URL, size: Int64, digest: String?) {
+            self.name = name
+            self.browserDownloadURL = browserDownloadURL
+            self.size = size
+            self.digest = digest
         }
     }
 
@@ -117,6 +124,7 @@ final class AppUpdateManager: ObservableObject {
     static let releasesURL = URL(string: "https://github.com/zero-times/scriptser/releases")!
     private static let latestURL = URL(string: "https://api.github.com/repos/zero-times/scriptser/releases/latest")!
     private static let latestPageURL = URL(string: "https://github.com/zero-times/scriptser/releases/latest")!
+    private static let downloadBaseURL = "https://github.com/zero-times/scriptser/releases/download/"
     private let session: URLSession
     private let now: () -> Date
     private var nextCheckAllowedAt = Date.distantPast
@@ -176,7 +184,7 @@ final class AppUpdateManager: ObservableObject {
         self.launchRestartHelperOverride = launchRestartHelper
         self.performRestartOverride = performRestart
         self.currentVersion = currentVersion
-            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.3"
+            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.4"
     }
 
     /// False means another surface already owns the in-flight check.
@@ -261,9 +269,43 @@ final class AppUpdateManager: ObservableObject {
               url.path.hasPrefix("/zero-times/scriptser/releases/tag/") else { throw AppUpdateError.invalidRelease }
         let tag = String(url.path.dropFirst("/zero-times/scriptser/releases/tag/".count))
         guard ReleaseVersion(tag) != nil else { throw AppUpdateError.invalidVersion }
+        let assets = await assetsFromChecksums(tag: tag)
         usesWebsiteFallback = true
         logger.info("Checked stable release using GitHub website: \(tag)")
-        return GitHubRelease(tagName: tag, htmlURL: url, body: nil, draft: false, prerelease: false, assets: [])
+        return GitHubRelease(tagName: tag, htmlURL: url, body: nil, draft: false, prerelease: false, assets: assets)
+    }
+
+    /// Rate-limited checks cannot call the API, but the published `SHA256SUMS.txt`
+    /// provides trusted digests so in-app installs keep working without it.
+    private func assetsFromChecksums(tag: String) async -> [GitHubRelease.Asset] {
+        guard let checksumsURL = URL(string: Self.downloadBaseURL + tag + "/SHA256SUMS.txt") else { return [] }
+        var request = URLRequest(url: checksumsURL, timeoutInterval: 20)
+        request.setValue("text/plain", forHTTPHeaderField: "Accept")
+        guard let (data, response) = try? await session.data(for: request),
+              let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200,
+              httpResponse.url?.host == "github.com",
+              httpResponse.url?.path.hasPrefix("/zero-times/scriptser/releases/download/") == true,
+              data.count <= 65536,
+              let text = String(data: data, encoding: .utf8) else {
+            logger.info("Release checksums unavailable for \(tag); manual install only")
+            return []
+        }
+        var assets: [GitHubRelease.Asset] = []
+        for rawLine in text.split(whereSeparator: \.isNewline) {
+            let parts = rawLine.split(separator: " ", maxSplits: 1, omittingEmptySubsequences: true)
+            guard parts.count == 2, parts[0].count == 64, parts[0].allSatisfy(\.isHexDigit) else { continue }
+            var name = parts[1].trimmingCharacters(in: .whitespaces)
+            if name.hasPrefix("*") { name.removeFirst() }
+            let ext = (name as NSString).pathExtension.lowercased()
+            guard !name.isEmpty, name == (name as NSString).lastPathComponent,
+                  ["dmg", "zip", "pkg"].contains(ext), !name.lowercased().contains("source"),
+                  let encodedName = name.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+                  let url = URL(string: Self.downloadBaseURL + tag + "/" + encodedName) else { continue }
+            assets.append(GitHubRelease.Asset(name: name, browserDownloadURL: url,
+                                              size: 0, digest: "sha256:" + parts[0].lowercased()))
+        }
+        return assets
     }
 
     /// Saves a verified package through the native save dialog. Kept as the manual fallback
@@ -428,7 +470,9 @@ final class AppUpdateManager: ObservableObject {
 
     nonisolated static func verifyDownload(at url: URL, asset: GitHubRelease.Asset) throws {
         let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
-        guard (attributes[.size] as? NSNumber)?.int64Value == asset.size else { throw AppUpdateError.damagedDownload }
+        if asset.size > 0 {
+            guard (attributes[.size] as? NSNumber)?.int64Value == asset.size else { throw AppUpdateError.damagedDownload }
+        }
         if let digest = asset.digest {
             guard digest.hasPrefix("sha256:") else { throw AppUpdateError.damagedDownload }
             let file = try FileHandle(forReadingFrom: url)

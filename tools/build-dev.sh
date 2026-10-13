@@ -23,7 +23,7 @@ cat > "$task_app_dir/Contents/Info.plist" <<'PLIST'
 <key>CFBundleExecutable</key><string>ScriptserDev</string>
 <key>CFBundleIdentifier</key><string>com.scriptser.scr1.preview</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>1.2.3</string>
+<key>CFBundleShortVersionString</key><string>1.2.4</string>
 <key>CFBundleVersion</key><string>4</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>NSHighResolutionCapable</key><true/>
