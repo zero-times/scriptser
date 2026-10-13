@@ -122,6 +122,12 @@ final class AppUpdateManager: ObservableObject {
     private var nextCheckAllowedAt = Date.distantPast
     private var apiLimitedUntil = Date.distantPast
     private let downloadOverride: ((URLRequest) async throws -> (URL, URLResponse))?
+    private let canApplyInPlaceOverride: Bool?
+    private let launchRestartHelperOverride: ((URL, URL, URL) throws -> Void)?
+    private let performRestartOverride: (() -> Void)?
+    private var restartProcess: Process?
+    private var terminationWatchdog: DispatchWorkItem?
+    private static let restartWatchdogDelay: TimeInterval = 5
     private let logger = AppLogger.general
     let currentVersion: String
 
@@ -146,7 +152,8 @@ final class AppUpdateManager: ObservableObject {
     /// The bundle this running app can replace in place. DEV builds use a separate
     /// bundle identifier and are excluded so the release updater never replaces them.
     var canApplyUpdateInPlace: Bool {
-        Bundle.main.bundleIdentifier == "com.ingoo.scriptser" && installedAppURL.pathExtension == "app"
+        if let canApplyInPlaceOverride { return canApplyInPlaceOverride }
+        return Bundle.main.bundleIdentifier == "com.ingoo.scriptser" && installedAppURL.pathExtension == "app"
     }
 
     var installedAppURL: URL {
@@ -158,12 +165,18 @@ final class AppUpdateManager: ObservableObject {
     }
 
     init(session: URLSession = .shared, currentVersion: String? = nil, now: @escaping () -> Date = Date.init,
-         download: ((URLRequest) async throws -> (URL, URLResponse))? = nil) {
+         download: ((URLRequest) async throws -> (URL, URLResponse))? = nil,
+         canApplyUpdateInPlace: Bool? = nil,
+         launchRestartHelper: ((URL, URL, URL) throws -> Void)? = nil,
+         performRestart: (() -> Void)? = nil) {
         self.session = session
         self.now = now
         self.downloadOverride = download
+        self.canApplyInPlaceOverride = canApplyUpdateInPlace
+        self.launchRestartHelperOverride = launchRestartHelper
+        self.performRestartOverride = performRestart
         self.currentVersion = currentVersion
-            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.1"
+            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.2"
     }
 
     /// False means another surface already owns the in-flight check.
@@ -294,12 +307,15 @@ final class AppUpdateManager: ObservableObject {
         let fileManager = FileManager.default
         let workDirectory = fileManager.temporaryDirectory.appendingPathComponent("Scriptser-Update-\(UUID().uuidString)")
         defer {
-            isApplyingUpdate = false
+            isDownloading = false
             if phase != .restarting {
+                // Failed or cancelled before the restart commit: unlock the UI.
+                isApplyingUpdate = false
                 phase = .idle
                 downloadProgress = nil
                 try? fileManager.removeItem(at: workDirectory)
             }
+            // Once committed to .restarting the UI stays locked until this process exits.
         }
         do {
             isDownloading = true
@@ -321,14 +337,32 @@ final class AppUpdateManager: ObservableObject {
             guard stagedAppURL.pathExtension == "app" else { throw AppUpdateError.missingApplication }
 
             phase = .installing
-            try launchRestartHelper(stagedAppURL: stagedAppURL, targetURL: installedAppURL, workDirectory: workDirectory)
+            if let launchRestartHelperOverride {
+                try launchRestartHelperOverride(stagedAppURL, installedAppURL, workDirectory)
+            } else {
+                try launchRestartHelper(stagedAppURL: stagedAppURL, targetURL: installedAppURL, workDirectory: workDirectory)
+            }
             phase = .restarting
             logger.info("Update staged; restarting Scriptser")
-            NSApp.terminate(nil)
+            if let performRestartOverride {
+                performRestartOverride()
+            } else {
+                performRestart()
+            }
         } catch {
             lastError = (error as? AppUpdateError) ?? .network(error)
             logger.error("Automatic update failed: \(error.localizedDescription)")
         }
+    }
+
+    /// Quits the app so the helper can swap the bundle and relaunch Scriptser.
+    /// `NSApp.terminate` can be deferred while a sheet is presented, so a watchdog
+    /// force-quits the process shortly after to guarantee the update completes.
+    private func performRestart() {
+        NSApp.terminate(nil)
+        let watchdog = DispatchWorkItem { exit(0) }
+        terminationWatchdog = watchdog
+        DispatchQueue.global().asyncAfter(deadline: .now() + Self.restartWatchdogDelay, execute: watchdog)
     }
 
     private func fetchVerifiedPackage(_ asset: GitHubRelease.Asset) async throws -> URL {
@@ -505,6 +539,7 @@ final class AppUpdateManager: ObservableObject {
                              workDirectory.path, String(ProcessInfo.processInfo.processIdentifier)]
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
+        restartProcess = process
         try process.run()
     }
 

@@ -111,6 +111,11 @@ struct UpdateDetailsView: View {
         .padding(20)
         .frame(width: 580)
         .interactiveDismissDisabled(store.updateManager.isDownloading || store.updateManager.isApplyingUpdate)
+        .onChange(of: store.updateManager.phase) { newPhase in
+            // Close the sheet before quitting: AppKit defers NSApp.terminate while
+            // a sheet is presented, which left the update stuck at "Installing…".
+            if newPhase == .restarting { dismiss() }
+        }
         .errorAlert($downloadError)
     }
 

@@ -270,3 +270,104 @@ final class UpdateCheckTests: XCTestCase {
         XCTAssertNil(store.lastError, "Only the initiating update control should present the error")
     }
 }
+
+@MainActor
+final class UpdateInstallTests: XCTestCase {
+    override func setUp() async throws {
+        UpdateResponseProtocol.handler = nil
+        UpdateResponseProtocol.requests = []
+        UpdateResponseProtocol.delay = 0
+    }
+
+    /// Builds a minimal ZIP containing a Scriptser.app bundle so the real staging
+    /// pipeline (download → verify → extract → stage) can run without a DMG.
+    private func fakeScriptserZip() throws -> Data {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("update-fixture-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let app = root.appendingPathComponent("Scriptser.app")
+        try FileManager.default.createDirectory(at: app, withIntermediateDirectories: true)
+        try Data("fixture executable".utf8).write(to: app.appendingPathComponent("Executable"))
+        let zipURL = root.appendingPathComponent("Scriptser-universal.zip")
+        let ditto = Process()
+        ditto.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+        ditto.arguments = ["-c", "-k", "--keepParent", app.path, zipURL.path]
+        try ditto.run()
+        ditto.waitUntilExit()
+        guard ditto.terminationStatus == 0 else { throw CocoaError(.fileWriteUnknown) }
+        return try Data(contentsOf: zipURL)
+    }
+
+    private func manager(zip: Data, tag: String = "v1.2.0", installed: String = "1.1.0",
+                         launchRestartHelper: @escaping (URL, URL, URL) throws -> Void,
+                         performRestart: @escaping () -> Void) -> AppUpdateManager {
+        UpdateResponseProtocol.responseCode = 200
+        UpdateResponseProtocol.responseData = Data("""
+        {"tag_name":"\(tag)","html_url":"https://github.com/zero-times/scriptser/releases/tag/\(tag)","body":"Notes","draft":false,"prerelease":false,"assets":[
+          {"name":"Scriptser-universal.zip","size":\(zip.count),"browser_download_url":"https://github.com/zero-times/scriptser/releases/download/\(tag)/Scriptser-universal.zip"}
+        ]}
+        """.utf8)
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UpdateResponseProtocol.self]
+        return AppUpdateManager(session: URLSession(configuration: configuration),
+                                currentVersion: installed,
+                                download: { request in
+            let temporary = FileManager.default.temporaryDirectory
+                .appendingPathComponent("scriptser-download-\(UUID().uuidString).zip")
+            try zip.write(to: temporary)
+            return (temporary, HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!)
+        },
+        canApplyUpdateInPlace: true,
+        launchRestartHelper: launchRestartHelper,
+        performRestart: performRestart)
+    }
+
+    func testInstallCommitsRestartAndLocksUIUntilProcessExits() async throws {
+        let zip = try fakeScriptserZip()
+        var restarts = 0
+        var capturedTarget: URL?
+        let update = manager(zip: zip,
+                             launchRestartHelper: { _, target, _ in capturedTarget = target },
+                             performRestart: { restarts += 1 })
+        await update.checkForUpdates()
+        XCTAssertEqual(update.state, .available)
+
+        await update.installUpdateAndRestart()
+
+        XCTAssertEqual(restarts, 1, "Restart must be committed exactly once")
+        XCTAssertEqual(capturedTarget?.lastPathComponent, "Scriptser.app")
+        XCTAssertEqual(update.phase, .restarting)
+        XCTAssertTrue(update.isApplyingUpdate, "UI must stay locked while restarting")
+        XCTAssertNil(update.lastError)
+
+        // Clicking Install and Restart again while restarting must not re-download or relaunch.
+        await update.installUpdateAndRestart()
+        XCTAssertEqual(restarts, 1)
+    }
+
+    func testInstallFailureUnlocksUIAndReportsError() async throws {
+        let zip = try fakeScriptserZip()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [UpdateResponseProtocol.self]
+        UpdateResponseProtocol.responseCode = 200
+        UpdateResponseProtocol.responseData = Data("""
+        {"tag_name":"v1.2.0","html_url":"https://github.com/zero-times/scriptser/releases/tag/v1.2.0","body":"Notes","draft":false,"prerelease":false,"assets":[
+          {"name":"Scriptser-universal.zip","size":\(zip.count),"browser_download_url":"https://github.com/zero-times/scriptser/releases/download/v1.2.0/Scriptser-universal.zip"}
+        ]}
+        """.utf8)
+        let update = AppUpdateManager(session: URLSession(configuration: configuration),
+                                      currentVersion: "1.1.0",
+                                      download: { _ in throw URLError(.notConnectedToInternet) },
+                                      canApplyUpdateInPlace: true,
+                                      launchRestartHelper: { _, _, _ in },
+                                      performRestart: { })
+        await update.checkForUpdates()
+        XCTAssertEqual(update.state, .available)
+
+        await update.installUpdateAndRestart()
+
+        XCTAssertNotNil(update.lastError)
+        XCTAssertEqual(update.phase, .idle)
+        XCTAssertFalse(update.isApplyingUpdate)
+        XCTAssertFalse(update.isDownloading, "UI must unlock after a failed install")
+    }
+}
