@@ -100,6 +100,7 @@ struct ScriptRunState: Equatable {
     var startedAt: Date?
     var endedAt: Date?
     var exitCode: Int?
+    var pid: Int32? = nil
 
     static var idle: ScriptRunState {
         ScriptRunState(

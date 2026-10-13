@@ -28,6 +28,20 @@ Manager has **All Scripts**, **Running**, and **At Launch** filters. Search matc
 
 Shortcuts: ⌘N to add a script, ⌘F to search, ⌘S to save in the editor, ⇧⌘R to run all, ⇧⌘. to stop all, and Escape to close a dialog.
 
+## AI Skill
+
+Open **AI Skill** (⇧⌘K) in Manager to select a skills directory and generate a ready-to-load `scriptser-control` folder containing `SKILL.md` and `references/ui.md`. The default is `~/.codex/skills`, or `$CODEX_HOME/skills` when that variable is available to the app. The selected directory is remembered. Generation also works in custom assistant directories.
+
+The dialog includes a preview, installation steps, **Open Skill Folder**, and **Copy Adding Prompt** with the absolute entrypoint path. In Codex, start a new chat and invoke `$scriptser-control`, or paste the adding prompt to load the Skill by path. The Skill covers all interface operations, including process termination and app updates. It requires an assistant with macOS UI automation and Accessibility access; it supplies guidance without installing an automation tool or introducing a backend.
+
+Generating again replaces the two bundled instruction files while preserving additional files. Unrelated Skills and symbolic links at the destination are rejected. DEV generates `scriptser-dev-control` with its own app target, so it can coexist with the production Skill. Generated targets use the current app installation path; regenerate after moving the app or use its new location.
+
+## Process details and application icon
+
+Running script rows in Manager and the menu bar, and their Output viewer, show the tracked process **PID**. **Stop** sends normal termination. **End Process** confirms the script name and PID, then sends `SIGKILL` to that tracked process. The action rejects a confirmation for an old PID after a script restarts. It affects the tracked shell process, not an entire process tree. PID is cleared when execution ends, and recovered running scripts display their persisted PID.
+
+The bundled macOS app icon is shared by the shipping and DEV app. Its reproducible AppKit source is `tools/generate-app-icon.swift`; run the commands in that file to regenerate `Resources/AppIcon.icns`.
+
 ## Updates
 
 **Check for Updates…** is available in Manager and the menu bar. It contacts the public GitHub API for the latest stable release from [zero-times/scriptser Releases](https://github.com/zero-times/scriptser/releases). Concurrent checks share one request, and checks within 60 seconds reuse the result. If GitHub returns an API quota error, Scriptser checks the official latest-release webpage and avoids retrying the API until its quota reset. In this fallback, package metadata is unavailable, so use **Visit Releases** to download the installer. Errors are presented only at the initiating update control. Checks run only when requested; drafts and prereleases are excluded, and equal or older versions are never offered as updates.

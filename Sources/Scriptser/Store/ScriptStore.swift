@@ -13,6 +13,7 @@ enum ScriptStoreError: LocalizedError {
     case exportError(Error)
     case settingsError(String)
     case updateError(AppUpdateError)
+    case skillError(SkillError)
 
     var errorDescription: String? {
         switch self {
@@ -27,6 +28,8 @@ enum ScriptStoreError: LocalizedError {
         case .settingsError(let message):
             return message
         case .updateError(let error):
+            return error.localizedDescription
+        case .skillError(let error):
             return error.localizedDescription
         }
     }
@@ -49,6 +52,7 @@ final class ScriptStore: ObservableObject {
     let processManager: ProcessManager
     let settings: AppSettings
     let updateManager: AppUpdateManager
+    let skillManager = SkillManager()
     private var subscriptions = Set<AnyCancellable>()
 
     // State
@@ -191,6 +195,14 @@ final class ScriptStore: ObservableObject {
 
     func runAll() {
         scripts.filter { $0.isEnabled && !isRunning($0) }.forEach { run($0) }
+    }
+
+    func endProcess(_ script: ScriptEntry, expectedPID: Int32) {
+        Task {
+            do { try await processManager.endProcess(script.id, expectedPID: expectedPID) }
+            catch let error as ProcessError { lastError = .processError(error) }
+            catch { lastError = .processError(.terminationFailed(underlying: error)) }
+        }
     }
 
     func stopAll() {

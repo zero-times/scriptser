@@ -14,7 +14,8 @@ let package = Package(
         .executableTarget(
             name: "Scriptser",
             path: "Sources/Scriptser",
-            resources: [.process("Resources")]
+            resources: [.process("Resources/en.lproj"), .process("Resources/zh-Hans.lproj"),
+                        .copy("Resources/Skills"), .copy("Resources/AppIcon.icns")]
         ),
         .testTarget(name: "ScriptserTests", dependencies: ["Scriptser"])
     ]

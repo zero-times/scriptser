@@ -9,6 +9,7 @@ struct ScriptManagerView: View {
     @State private var showingDeleteConfirmation = false
     @State private var showingImporter = false
     @State private var showingExporter = false
+    @State private var showingSkillSettings = false
     @State private var selectedScriptId: UUID?
     @State private var filter: ScriptFilter = .all
     @FocusState private var searchFocused: Bool
@@ -58,6 +59,7 @@ struct ScriptManagerView: View {
             ScriptEditorView(script: script) { store.upsert($0) }
         }
         .sheet(item: $viewingOutputScript) { OutputViewerView(script: $0) }
+        .sheet(isPresented: $showingSkillSettings) { SkillSettingsView() }
         .confirmationDialog(
             L10n.text("Delete Script"),
             isPresented: $showingDeleteConfirmation,
@@ -187,6 +189,10 @@ struct ScriptManagerView: View {
             ))
             .help(L10n.text("Open Scriptser automatically when you log in to your Mac."))
             Spacer()
+            Button { showingSkillSettings = true } label: {
+                Label(L10n.text("AI Skill"), systemImage: "sparkles")
+            }
+            .keyboardShortcut("k", modifiers: [.command, .shift])
             Picker(L10n.text("Language"), selection: Binding(
                 get: { store.settings.language },
                 set: { store.settings.language = $0 }
@@ -239,6 +245,7 @@ struct ScriptManagerRow: View {
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(.secondary).lineLimit(1)
             HStack {
+                ProcessDetailsView(script: script)
                 if !script.workingDirectory.isEmpty {
                     Label(script.workingDirectory, systemImage: "folder")
                         .lineLimit(1).truncationMode(.middle)

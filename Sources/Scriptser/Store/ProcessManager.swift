@@ -43,6 +43,24 @@ actor ProcessState {
         runningProcessIds[id] = pid
     }
 
+    /// Validate and signal without an actor suspension between PID lookup and kill.
+    func endProcess(for id: UUID, expectedPID: pid_t) throws -> Bool {
+        guard expectedPID > 0, runningProcessIds[id] == expectedPID else { throw ProcessError.notRunning }
+        let process = runningProcesses[id]
+        if let process, !process.isRunning { throw ProcessError.notRunning }
+        stoppedIds.insert(id)
+        guard kill(expectedPID, SIGKILL) == 0 else {
+            let error = NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
+            stoppedIds.remove(id)
+            throw ProcessError.terminationFailed(underlying: error)
+        }
+        if process == nil {
+            clearProcess(for: id)
+            stoppedIds.remove(id)
+        }
+        return process != nil
+    }
+
     // Output buffer management
     func appendOutput(for id: UUID, text: String, maxLength: Int = 10000) {
         var buffer = outputBuffers[id] ?? ""
@@ -73,6 +91,7 @@ enum ProcessError: LocalizedError {
     case alreadyRunning
     case startFailed(underlying: Error)
     case notRunning
+    case terminationFailed(underlying: Error)
 
     var errorDescription: String? {
         switch self {
@@ -86,6 +105,8 @@ enum ProcessError: LocalizedError {
             return L10n.format("Failed to start: %@", error.localizedDescription)
         case .notRunning:
             return L10n.text("Script is not running")
+        case .terminationFailed(let error):
+            return L10n.format("Could not end process: %@", error.localizedDescription)
         }
     }
 }
@@ -203,6 +224,11 @@ final class ProcessManager: ObservableObject {
         do {
             try process.run()
             await processState.setProcess(process, for: script.id)
+            if isRunning(script.id) {
+                var state = status(for: script.id)
+                state.pid = process.processIdentifier
+                updateState(script.id, state)
+            }
             setPersistedRunState(for: script.id, pid: process.processIdentifier, startedAt: startTime)
             logger.info("Script started with PID: \(process.processIdentifier)")
         } catch {
@@ -247,6 +273,19 @@ final class ProcessManager: ObservableObject {
         ))
     }
 
+    /// Require the PID captured by the confirmation dialog, rejecting a restarted target.
+    func endProcess(_ scriptId: UUID, expectedPID: pid_t) async throws {
+        guard isRunning(scriptId), status(for: scriptId).pid == expectedPID else { throw ProcessError.notRunning }
+        let hasTerminationHandler = try await processState.endProcess(for: scriptId, expectedPID: expectedPID)
+        clearPersistedRunState(for: scriptId)
+        // Owned processes publish their final state via the handler before they can restart.
+        if !hasTerminationHandler {
+            updateState(scriptId, ScriptRunState(status: .stopped, lastMessage: L10n.text("Stopped by user"),
+                                                startedAt: status(for: scriptId).startedAt, endedAt: Date(), exitCode: nil))
+        }
+        logger.info("Ended process PID \(expectedPID) for script: \(scriptId)")
+    }
+
     func syncRunningStates(for scripts: [ScriptEntry]) async {
         var persistedStates = loadPersistedRunStates()
         let validIds = Set(scripts.map { $0.id.uuidString })
@@ -268,7 +307,8 @@ final class ProcessManager: ObservableObject {
                     lastMessage: L10n.text("Running (restored)"),
                     startedAt: Date(timeIntervalSince1970: persisted.startedAt),
                     endedAt: nil,
-                    exitCode: nil
+                    exitCode: nil,
+                    pid: persisted.pid
                 ))
                 logger.info("Restored running state for script: \(script.id)")
             } else {

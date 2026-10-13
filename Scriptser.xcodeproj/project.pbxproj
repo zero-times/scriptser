@@ -23,6 +23,11 @@
 		B10000000000000000000003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* Localizable.strings */; };
 		B10000000000000000000007 /* AppUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* AppUpdateManager.swift */; };
 		B10000000000000000000009 /* UpdateControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* UpdateControlsView.swift */; };
+		C20000000000000000000001 /* SkillManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* SkillManager.swift */; };
+		C20000000000000000000003 /* SkillSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* SkillSettingsView.swift */; };
+		C20000000000000000000005 /* ProcessDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000006 /* ProcessDetailsView.swift */; };
+		C20000000000000000000007 /* Skills in Resources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* Skills */; };
+		C20000000000000000000009 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000010 /* AppIcon.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +50,11 @@
 		B10000000000000000000006 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "Resources/zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		B10000000000000000000008 /* AppUpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateManager.swift; sourceTree = "<group>"; };
 		B10000000000000000000010 /* UpdateControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateControlsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000002 /* SkillManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillManager.swift; sourceTree = "<group>"; };
+		C20000000000000000000004 /* SkillSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillSettingsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000006 /* ProcessDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessDetailsView.swift; sourceTree = "<group>"; };
+		C20000000000000000000008 /* Skills */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources/Skills; sourceTree = "<group>"; };
+		C20000000000000000000010 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Resources/AppIcon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +71,7 @@
 		0468CEC22F2B098F0060CE5A /* Store */ = {
 			isa = PBXGroup;
 			children = (
+				C20000000000000000000002 /* SkillManager.swift */,
 				B10000000000000000000008 /* AppUpdateManager.swift */,
 				0468CEBE2F2B098F0060CE5A /* AppSettings.swift */,
 				0468CEBF2F2B098F0060CE5A /* ProcessManager.swift */,
@@ -82,6 +93,7 @@
 		0468CEC62F2B098F0060CE5A /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				C20000000000000000000006 /* ProcessDetailsView.swift */,
 				B10000000000000000000010 /* UpdateControlsView.swift */,
 				0468CEC52F2B098F0060CE5A /* StatusBadge.swift */,
 			);
@@ -91,6 +103,7 @@
 		0468CECB2F2B098F0060CE5A /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C20000000000000000000004 /* SkillSettingsView.swift */,
 				0468CEC62F2B098F0060CE5A /* Components */,
 				0468CEC72F2B098F0060CE5A /* OutputViewerView.swift */,
 				0468CEC82F2B098F0060CE5A /* ScriptEditorView.swift */,
@@ -112,6 +125,8 @@
 		A1B2C3D4E5F60718293A4B5E /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				C20000000000000000000010 /* AppIcon.icns */,
+				C20000000000000000000008 /* Skills */,
 				A1B2C3D4E5F60718293A4B80 /* ScriptserApp.swift */,
 				0468CEC22F2B098F0060CE5A /* Store */,
 				0468CEC42F2B098F0060CE5A /* Utilities */,
@@ -182,6 +197,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C20000000000000000000009 /* AppIcon.icns in Resources */,
+				C20000000000000000000007 /* Skills in Resources */,
 				B10000000000000000000003 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -193,6 +210,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C20000000000000000000005 /* ProcessDetailsView.swift in Sources */,
+				C20000000000000000000003 /* SkillSettingsView.swift in Sources */,
+				C20000000000000000000001 /* SkillManager.swift in Sources */,
 				A1B2C3D4E5F60718293A4B70 /* ScriptserApp.swift in Sources */,
 				B10000000000000000000007 /* AppUpdateManager.swift in Sources */,
 				B10000000000000000000009 /* UpdateControlsView.swift in Sources */,

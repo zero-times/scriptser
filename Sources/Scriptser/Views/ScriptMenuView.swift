@@ -71,28 +71,31 @@ struct ScriptMenuRow: View {
     let script: ScriptEntry
 
     var body: some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(script.name.isEmpty ? L10n.text("Untitled Script") : script.name)
-                    .font(.body.weight(.medium)).lineLimit(1)
-                    .foregroundStyle(script.isEnabled ? .primary : .secondary)
-                HStack(spacing: 8) {
-                    StatusBadge(status: store.status(for: script).status)
-                    if !script.isEnabled { Text(L10n.text("Disabled")).foregroundStyle(.secondary) }
-                    if script.runAtLaunch {
-                        Image(systemName: "power").help(L10n.text("Run when Scriptser launches"))
-                            .accessibilityLabel(L10n.text("Run when Scriptser launches"))
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(script.name.isEmpty ? L10n.text("Untitled Script") : script.name)
+                        .font(.body.weight(.medium)).lineLimit(1)
+                        .foregroundStyle(script.isEnabled ? .primary : .secondary)
+                    HStack(spacing: 8) {
+                        StatusBadge(status: store.status(for: script).status)
+                        if !script.isEnabled { Text(L10n.text("Disabled")).foregroundStyle(.secondary) }
+                        if script.runAtLaunch {
+                            Image(systemName: "power").help(L10n.text("Run when Scriptser launches"))
+                                .accessibilityLabel(L10n.text("Run when Scriptser launches"))
+                        }
                     }
+                    .font(.caption)
                 }
-                .font(.caption)
+                Spacer()
+                if store.isRunning(script) {
+                    Button(L10n.text("Stop")) { store.stop(script) }
+                } else {
+                    Button(L10n.text("Run")) { store.run(script) }
+                        .disabled(!script.isEnabled || !store.isReady)
+                }
             }
-            Spacer()
-            if store.isRunning(script) {
-                Button(L10n.text("Stop")) { store.stop(script) }
-            } else {
-                Button(L10n.text("Run")) { store.run(script) }
-                    .disabled(!script.isEnabled || !store.isReady)
-            }
+            ProcessDetailsView(script: script)
         }
     }
 }

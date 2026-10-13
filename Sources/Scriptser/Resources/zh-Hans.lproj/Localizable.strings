@@ -113,3 +113,32 @@
 "Add Custom Command..." = "添加自定义命令…";
 
 "Version checked via the release page. Visit Releases to download the installer." = "已通过发布页面核对版本，请前往发布页面下载安装包。";
+
+// Skills and process details.
+"AI Skill" = "AI Skill";
+"Generate a Skill that guides your AI assistant through every Scriptser interface feature." = "生成 Skill，引导 AI 助手操作 Scriptser 的全部界面功能。";
+"Skill Directory" = "Skill 目录";
+"Choose Directory..." = "选择目录…";
+"Creates %@ with SKILL.md and references/ui.md." = "创建 %@ 文件夹，包含 SKILL.md 和 references/ui.md。";
+"Generating again updates the bundled instructions. Additional files are preserved." = "再次生成会更新内置指引，其他文件会保留。";
+"Add to Your AI Assistant" = "添加到 AI 助手";
+"1. Choose your assistant’s skills directory. Codex defaults to ~/.codex/skills (or $CODEX_HOME/skills)." = "1. 选择助手的 skills 目录。Codex 默认使用 ~/.codex/skills（或 $CODEX_HOME/skills）。";
+"2. Click Generate Skill. For another assistant, choose its skills directory or import the generated folder." = "2. 点击“生成 Skill”。其他助手可选择其 skills 目录，或导入生成的文件夹。";
+"3. Start a new chat and invoke $%@, or copy the prompt below to load this Skill by path." = "3. 在新对话中调用 $%@，或复制下方指引，通过路径加载此 Skill。";
+"The assistant needs a macOS interface automation tool and Accessibility permission. The Skill provides instructions; it does not install an automation tool." = "助手需要 macOS 界面自动化工具及辅助功能权限。Skill 提供操作指引，不会安装自动化工具。";
+"Generated at %@" = "已生成至 %@";
+"Prompt Copied" = "指引已复制";
+"Copy Adding Prompt" = "复制添加指引";
+"Open Skill Folder" = "打开 Skill 文件夹";
+"Preview Skill" = "预览 Skill";
+"Generate Skill" = "生成 Skill";
+"Select the parent directory where your assistant discovers Skills." = "选择助手用于发现 Skill 的父目录。";
+"The bundled Skill template is missing." = "应用中的 Skill 模板缺失。";
+"This folder contains another Skill or a symbolic link. Choose a different directory." = "该文件夹包含其他 Skill 或符号链接，请选择其他目录。";
+"Could not generate Skill: %@" = "无法生成 Skill：%@";
+"Read the Skill at %@ and use it to operate %@ through its interface. Only perform the actions I request." = "读取 %@ 中的 Skill，通过界面操作 %@。仅执行我要求的操作。";
+"PID: %@" = "PID：%@";
+"End Process" = "结束进程";
+"Force end the tracked process using SIGKILL." = "使用 SIGKILL 强制结束当前跟踪的进程。";
+"Force end “%@” (PID %@)? Unsaved process work may be lost." = "强制结束“%@”（PID %@）？进程未保存的工作可能丢失。";
+"Could not end process: %@" = "无法结束进程：%@";

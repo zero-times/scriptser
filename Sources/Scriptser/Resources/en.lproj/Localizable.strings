@@ -113,3 +113,32 @@
 "Add Custom Command..." = "Add Custom Command...";
 
 "Version checked via the release page. Visit Releases to download the installer." = "Version checked via the release page. Visit Releases to download the installer.";
+
+// Skills and process details.
+"AI Skill" = "AI Skill";
+"Generate a Skill that guides your AI assistant through every Scriptser interface feature." = "Generate a Skill that guides your AI assistant through every Scriptser interface feature.";
+"Skill Directory" = "Skill Directory";
+"Choose Directory..." = "Choose Directory...";
+"Creates %@ with SKILL.md and references/ui.md." = "Creates %@ with SKILL.md and references/ui.md.";
+"Generating again updates the bundled instructions. Additional files are preserved." = "Generating again updates the bundled instructions. Additional files are preserved.";
+"Add to Your AI Assistant" = "Add to Your AI Assistant";
+"1. Choose your assistant’s skills directory. Codex defaults to ~/.codex/skills (or $CODEX_HOME/skills)." = "1. Choose your assistant’s skills directory. Codex defaults to ~/.codex/skills (or $CODEX_HOME/skills).";
+"2. Click Generate Skill. For another assistant, choose its skills directory or import the generated folder." = "2. Click Generate Skill. For another assistant, choose its skills directory or import the generated folder.";
+"3. Start a new chat and invoke $%@, or copy the prompt below to load this Skill by path." = "3. Start a new chat and invoke $%@, or copy the prompt below to load this Skill by path.";
+"The assistant needs a macOS interface automation tool and Accessibility permission. The Skill provides instructions; it does not install an automation tool." = "The assistant needs a macOS interface automation tool and Accessibility permission. The Skill provides instructions; it does not install an automation tool.";
+"Generated at %@" = "Generated at %@";
+"Prompt Copied" = "Prompt Copied";
+"Copy Adding Prompt" = "Copy Adding Prompt";
+"Open Skill Folder" = "Open Skill Folder";
+"Preview Skill" = "Preview Skill";
+"Generate Skill" = "Generate Skill";
+"Select the parent directory where your assistant discovers Skills." = "Select the parent directory where your assistant discovers Skills.";
+"The bundled Skill template is missing." = "The bundled Skill template is missing.";
+"This folder contains another Skill or a symbolic link. Choose a different directory." = "This folder contains another Skill or a symbolic link. Choose a different directory.";
+"Could not generate Skill: %@" = "Could not generate Skill: %@";
+"Read the Skill at %@ and use it to operate %@ through its interface. Only perform the actions I request." = "Read the Skill at %@ and use it to operate %@ through its interface. Only perform the actions I request.";
+"PID: %@" = "PID: %@";
+"End Process" = "End Process";
+"Force end the tracked process using SIGKILL." = "Force end the tracked process using SIGKILL.";
+"Force end “%@” (PID %@)? Unsaved process work may be lost." = "Force end “%@” (PID %@)? Unsaved process work may be lost.";
+"Could not end process: %@" = "Could not end process: %@";

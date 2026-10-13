@@ -17,6 +17,7 @@ struct OutputViewerView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             headerView
+            ProcessDetailsView(script: script)
 
             // Output area
             outputScrollView

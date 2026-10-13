@@ -13,9 +13,14 @@ final class AppSettings: ObservableObject {
     private enum Keys {
         static let launchAtLogin = "launchAtLoginEnabled"
         static let outputBufferSize = "outputBufferSize"
+        static let skillDirectory = "skillDirectory"
     }
 
     @Published var lastError: String?
+
+    @Published var skillDirectory: String {
+        didSet { defaults.set(skillDirectory, forKey: Keys.skillDirectory) }
+    }
 
     @Published var language: AppLanguage {
         didSet { defaults.set(language.rawValue, forKey: AppLanguage.defaultsKey) }
@@ -35,6 +40,7 @@ final class AppSettings: ObservableObject {
     init(defaults: UserDefaults = .standard, managesLoginItem: Bool = true) {
         self.defaults = defaults
         self.managesLoginItem = managesLoginItem
+        skillDirectory = defaults.string(forKey: Keys.skillDirectory) ?? SkillManager.defaultDirectory
         language = AppLanguage(rawValue: defaults.string(forKey: AppLanguage.defaultsKey) ?? "") ?? .system
         launchAtLoginEnabled = defaults.bool(forKey: Keys.launchAtLogin)
         let savedBufferSize = defaults.integer(forKey: Keys.outputBufferSize)
