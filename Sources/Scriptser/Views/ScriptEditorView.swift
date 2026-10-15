@@ -29,6 +29,16 @@ struct ScriptEditorView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
+                Text(L10n.text("Notes (optional)")).font(.headline)
+                TextField(L10n.text("Describe what this script does"), text: $draft.notes, axis: .vertical)
+                    .lineLimit(2...3)
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityLabel(L10n.text("Notes (optional)"))
+                Text(L10n.text("Shown in the script list. Commands and process details stay in Details."))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.text("Command")).font(.headline)
                 TextEditor(text: $draft.command)
                     .font(.system(.body, design: .monospaced))
@@ -81,6 +91,7 @@ struct ScriptEditorView: View {
     private func save() {
         var cleaned = draft
         cleaned.name = cleaned.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        cleaned.notes = cleaned.notes.trimmingCharacters(in: .whitespacesAndNewlines)
         cleaned.command = cleaned.command.trimmingCharacters(in: .whitespacesAndNewlines)
         cleaned.workingDirectory = cleaned.workingDirectory.trimmingCharacters(in: .whitespacesAndNewlines)
         onSave(cleaned)

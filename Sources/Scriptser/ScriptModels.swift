@@ -4,6 +4,7 @@ import SwiftUI
 struct ScriptEntry: Identifiable, Codable, Equatable {
     var id: UUID
     var name: String
+    var notes: String
     var command: String
     var workingDirectory: String
     var isEnabled: Bool
@@ -30,6 +31,7 @@ struct ScriptEntry: Identifiable, Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
+        notes = try container.decodeIfPresent(String.self, forKey: .notes) ?? ""
         command = try container.decode(String.self, forKey: .command)
         workingDirectory = try container.decode(String.self, forKey: .workingDirectory)
         isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
@@ -45,6 +47,7 @@ struct ScriptEntry: Identifiable, Codable, Equatable {
         command: String,
         workingDirectory: String,
         isEnabled: Bool,
+        notes: String = "",
         runAtLaunch: Bool = false,
         tags: [String] = [],
         createdAt: Date = Date(),
@@ -52,6 +55,7 @@ struct ScriptEntry: Identifiable, Codable, Equatable {
     ) {
         self.id = id
         self.name = name
+        self.notes = notes
         self.command = command
         self.workingDirectory = workingDirectory
         self.isEnabled = isEnabled

@@ -11,6 +11,7 @@ struct ScriptManagerView: View {
     @State private var showingExporter = false
     @State private var showingSkillSettings = false
     @State private var selectedScriptId: UUID?
+    @State private var expandedScriptIDs: Set<UUID> = []
     @State private var filter: ScriptFilter = .all
     @FocusState private var searchFocused: Bool
 
@@ -116,26 +117,18 @@ struct ScriptManagerView: View {
     private var scriptListView: some View {
         List(selection: $selectedScriptId) {
             ForEach(visibleScripts) { script in
-                ScriptManagerRow(
+                ScriptRowView(
                     script: script,
+                    isExpanded: Binding(
+                        get: { expandedScriptIDs.contains(script.id) },
+                        set: { if $0 { expandedScriptIDs.insert(script.id) } else { expandedScriptIDs.remove(script.id) } }
+                    ),
                     onEdit: { store.editingScript = script },
                     onViewOutput: { viewingOutputScript = script },
                     onDelete: { requestDelete(script) }
                 )
                 .tag(script.id)
-                .contextMenu {
-                    Button(L10n.text("Edit")) { store.editingScript = script }
-                    Button(L10n.text("Output")) { viewingOutputScript = script }
-                    Divider()
-                    if store.isRunning(script) {
-                        Button(L10n.text("Stop")) { store.stop(script) }
-                    } else {
-                        Button(L10n.text("Run")) { store.run(script) }
-                            .disabled(!script.isEnabled || !store.isReady)
-                    }
-                    Divider()
-                    Button(L10n.text("Delete"), role: .destructive) { requestDelete(script) }
-                }
+                .listRowSeparator(.hidden)
             }
             .onDelete { offsets in
                 if let index = offsets.first { requestDelete(visibleScripts[index]) }
@@ -212,71 +205,6 @@ struct ScriptManagerView: View {
     private func displayName(_ script: ScriptEntry?) -> String {
         guard let script, !script.name.isEmpty else { return L10n.text("Untitled Script") }
         return script.name
-    }
-}
-
-struct ScriptManagerRow: View {
-    @EnvironmentObject private var store: ScriptStore
-    let script: ScriptEntry
-    let onEdit: () -> Void
-    let onViewOutput: () -> Void
-    let onDelete: () -> Void
-
-    var body: some View {
-        let state = store.status(for: script)
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 10) {
-                Text(script.name.isEmpty ? L10n.text("Untitled Script") : script.name)
-                    .font(.headline).lineLimit(1)
-                if !script.isEnabled {
-                    Text(L10n.text("Disabled")).font(.caption).foregroundStyle(.secondary)
-                }
-                if script.runAtLaunch {
-                    Image(systemName: "power")
-                        .foregroundStyle(.secondary)
-                        .help(L10n.text("Run when Scriptser launches"))
-                        .accessibilityLabel(L10n.text("Run when Scriptser launches"))
-                }
-                Spacer()
-                StatusBadge(status: state.status).font(.caption)
-                actionButtons
-            }
-            Text(script.command)
-                .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.secondary).lineLimit(1)
-            HStack {
-                ProcessDetailsView(script: script)
-                if !script.workingDirectory.isEmpty {
-                    Label(script.workingDirectory, systemImage: "folder")
-                        .lineLimit(1).truncationMode(.middle)
-                }
-                Spacer()
-                if let lastRun = state.startedAt ?? script.lastRunAt {
-                    Text(L10n.format("Last: %@", L10n.relativeDate(lastRun)))
-                }
-                if let duration = state.formattedDuration { Text(duration).monospacedDigit() }
-            }
-            .font(.caption2).foregroundStyle(.secondary)
-        }
-        .padding(.vertical, 8)
-    }
-
-    private var actionButtons: some View {
-        HStack(spacing: 8) {
-            Button(action: onEdit) { Image(systemName: "pencil") }
-                .help(L10n.text("Edit")).accessibilityLabel(L10n.text("Edit"))
-            Button(action: onViewOutput) { Image(systemName: "text.alignleft") }
-                .help(L10n.text("Output")).accessibilityLabel(L10n.text("Output"))
-            if store.isRunning(script) {
-                Button(L10n.text("Stop")) { store.stop(script) }
-            } else {
-                Button(L10n.text("Run")) { store.run(script) }
-                    .disabled(!script.isEnabled || !store.isReady)
-            }
-            Button(role: .destructive, action: onDelete) { Image(systemName: "trash") }
-                .help(L10n.text("Delete")).accessibilityLabel(L10n.text("Delete"))
-        }
-        .buttonStyle(.borderless)
     }
 }
 

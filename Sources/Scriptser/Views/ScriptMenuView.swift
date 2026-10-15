@@ -6,6 +6,7 @@ struct ScriptMenuView: View {
     @EnvironmentObject private var store: ScriptStore
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismiss) private var dismissMenu
+    @State private var expandedScriptIDs: Set<UUID> = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -37,11 +38,21 @@ struct ScriptMenuView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 12) {
-                        ForEach(store.scripts) { ScriptMenuRow(script: $0) }
+                        ForEach(store.scripts) { script in
+                            ScriptRowView(
+                                script: script,
+                                isExpanded: Binding(
+                                    get: { expandedScriptIDs.contains(script.id) },
+                                    set: { if $0 { expandedScriptIDs.insert(script.id) } else { expandedScriptIDs.remove(script.id) } }
+                                ),
+                                onEdit: { store.editingScript = script; showManager() }
+                            )
+                        }
                     }
                 }
                 // A finite height keeps the menu's scroll view from collapsing in MenuBarExtra.
-                .frame(height: min(CGFloat(store.scripts.count) * 64, 320))
+                .frame(height: min(CGFloat(store.scripts.count) * 64
+                                   + CGFloat(store.scripts.filter { expandedScriptIDs.contains($0.id) }.count) * 280, 420))
             }
             Button { store.editingScript = .empty(); showManager() } label: {
                 Label(L10n.text("Add Custom Command..."), systemImage: "plus")
@@ -57,7 +68,7 @@ struct ScriptMenuView: View {
             }
         }
         .padding(16)
-        .frame(width: 380)
+        .frame(width: 420)
         .errorAlert($store.lastError)
     }
 
@@ -69,39 +80,5 @@ struct ScriptMenuView: View {
         }
         openWindow(id: ScriptserApp.managerWindowID)
         NSApp.activate(ignoringOtherApps: true)
-    }
-}
-
-struct ScriptMenuRow: View {
-    @EnvironmentObject private var store: ScriptStore
-    let script: ScriptEntry
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(script.name.isEmpty ? L10n.text("Untitled Script") : script.name)
-                        .font(.body.weight(.medium)).lineLimit(1)
-                        .foregroundStyle(script.isEnabled ? .primary : .secondary)
-                    HStack(spacing: 8) {
-                        StatusBadge(status: store.status(for: script).status)
-                        if !script.isEnabled { Text(L10n.text("Disabled")).foregroundStyle(.secondary) }
-                        if script.runAtLaunch {
-                            Image(systemName: "power").help(L10n.text("Run when Scriptser launches"))
-                                .accessibilityLabel(L10n.text("Run when Scriptser launches"))
-                        }
-                    }
-                    .font(.caption)
-                }
-                Spacer()
-                if store.isRunning(script) {
-                    Button(L10n.text("Stop")) { store.stop(script) }
-                } else {
-                    Button(L10n.text("Run")) { store.run(script) }
-                        .disabled(!script.isEnabled || !store.isReady)
-                }
-            }
-            ProcessDetailsView(script: script)
-        }
     }
 }
