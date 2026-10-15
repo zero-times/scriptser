@@ -13,7 +13,7 @@ Or open `Scriptser.xcodeproj` and run the Scriptser scheme in Xcode. The applica
 
 ## Scripts
 
-- Add a name, any shell command or multiline script, and an optional working directory. Commands run with `/bin/zsh -ilc`, loading your login and interactive shell environment.
+- Add a name, optional notes, any shell command or multiline script, and an optional working directory. Commands run with `/bin/zsh -ilc`, loading your login and interactive shell environment.
 - **Enabled** controls whether a script can run, including **Run All**.
 - **Run when Scriptser launches** automatically runs an enabled script once when the app starts. This is independent of **Launch at Login**, which starts the app when you sign in to your Mac.
 - On restart, Scriptser restores tracked processes that are still running before starting automatic scripts, avoiding duplicate runs. Old configurations default to automatic execution off. Changing the switch or importing scripts applies on the next app launch.
@@ -24,7 +24,9 @@ Or open `Scriptser.xcodeproj` and run the Scriptser scheme in Xcode. The applica
 
 Choose **Follow System**, **简体中文**, or **English** in Manager. Language changes apply immediately to the menu, editor, output viewer, and app error messages, and are remembered across launches. Commands, script names, and raw shell output remain as entered.
 
-Manager has **All Scripts**, **Running**, and **At Launch** filters. Search matches names, commands, directories, and tags. The menu bar shows script names and live status, and scrolls when there are many scripts. Manager, the application menu, and DEV Dock activation reuse a single management window; settings are part of that window.
+Manager has **All Scripts**, **Running**, and **At Launch** filters. Search matches names, notes, commands, directories, and tags. Both lists show only the name, a one-line note (when provided), and a status/action button by default. Click a script’s name or choose **Show Details** to expand its full notes, command, directory, tags, last run, duration, and process information. The **More Actions** menu provides editing, execution, and, in Manager, output and deletion. The menu bar scrolls when needed, including with expanded details.
+
+The status button shows **Run**, **Running · Stop**, **Success · Run**, **Failed · Retry**, or **Stopped · Run**. Click it to run, retry, or stop the target script; disabled scripts cannot start, but a running disabled script can still be stopped. Status includes text and an action symbol as well as color. Old configurations without notes continue to load; notes are saved and included in JSON import/export. Manager, the application menu, and DEV Dock activation reuse a single management window; settings are part of that window.
 
 Shortcuts: ⌘N to add a script, ⌘F to search, ⌘S to save in the editor, ⇧⌘R to run all, ⇧⌘. to stop all, and Escape to close a dialog.
 
@@ -38,7 +40,7 @@ Generating again replaces the two bundled instruction files while preserving add
 
 ## Process details and application icon
 
-Running script rows in Manager and the menu bar, and their Output viewer, show the tracked process **PID**. **Stop** sends normal termination. **End Process** confirms the script name and PID, then sends `SIGKILL` to that tracked process. The action rejects a confirmation for an old PID after a script restarts. It affects the tracked shell process, not an entire process tree. PID is cleared when execution ends, and recovered running scripts display their persisted PID.
+Expand a running script’s details in Manager or the menu bar, or open its Output viewer, to see the tracked process **PID**. **Stop** sends normal termination. **End Process** confirms the script name and PID, then sends `SIGKILL` to that tracked process. The action rejects a confirmation for an old PID after a script restarts. It affects the tracked shell process, not an entire process tree. PID is cleared when execution ends, and recovered running scripts display their persisted PID.
 
 The bundled macOS app icon is shared by the shipping and DEV app. Its reproducible AppKit source is `tools/generate-app-icon.swift`; run the commands in that file to regenerate `Resources/AppIcon.icns`.
 
@@ -47,6 +49,8 @@ The bundled macOS app icon is shared by the shipping and DEV app. Its reproducib
 **Check for Updates…** is available in Manager and the menu bar. It contacts the public GitHub API for the latest stable release from [zero-times/scriptser Releases](https://github.com/zero-times/scriptser/releases). Concurrent checks share one request, and checks within 60 seconds reuse the result. If GitHub returns an API quota error, Scriptser checks the official latest-release webpage and avoids retrying the API until its quota reset. In this fallback, package metadata is unavailable, so use **Visit Releases** to download the installer. Errors are presented only at the initiating update control. Checks run only when requested; drafts and prereleases are excluded, and equal or older versions are never offered as updates.
 
 For a newer release, view the release notes and choose **Install and Restart**. Scriptser downloads the package with live progress, verifies its size and GitHub's SHA-256 digest when provided, mounts the `.dmg` or extracts the `.zip`, stages the replacement app, then swaps the bundle and relaunches automatically after quitting. Scripts and preferences stay in their existing locations. Automatic in-place installation applies to the production app; the DEV build and `.pkg` packages keep the manual fallback, where **Download Update…** saves the verified package and **Open Download** opens it for a manual replacement in Applications.
+
+To build a universal DMG and `SHA256SUMS.txt` from the version set in the Xcode project, run `zsh tools/build-release.sh 1.3.0`. The script verifies the packaged version and architectures, then applies an ad-hoc signature. Artifacts are written to `.build/releases/v1.3.0/`.
 
 Publish stable tags such as `v1.0.1` and attach packages named, for example, `Scriptser-arm64.dmg`, `Scriptser-x86_64.dmg`, or `Scriptser-universal.zip`. GitHub's generated source-code archives are not app updates. If no compatible package is available, the update view links to Releases; before the first release, the check reports that no releases are published.
 

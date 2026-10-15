@@ -13,12 +13,14 @@ final class ScriptModelTests: XCTestCase {
         XCTAssertEqual(scripts[0].id, id)
         XCTAssertFalse(scripts[0].runAtLaunch)
         XCTAssertTrue(scripts[0].tags.isEmpty)
+        XCTAssertEqual(scripts[0].notes, "")
     }
 
     func testStartupFlagAndMultilineCommandRoundTrip() throws {
         var script = ScriptEntry.empty()
         script.command = "echo first\necho second"
         script.runAtLaunch = true
+        script.notes = "启动本地服务\n保留日志供排查"
         let decoded = try JSONDecoder().decode(ScriptEntry.self, from: JSONEncoder().encode(script))
         XCTAssertEqual(decoded, script)
     }
@@ -173,6 +175,27 @@ final class StartupTests: XCTestCase {
         try await waitUntil { manager.status(for: script.id).exitCode != nil }
         XCTAssertEqual(manager.status(for: script.id).status, .success)
         XCTAssertEqual(try String(contentsOf: directory.appendingPathComponent("custom-output"), encoding: .utf8), "first\nsecond\n")
+    }
+
+    func testNotesPersistExportImportAndParticipateInSearch() async throws {
+        let store = makeStore()
+        try await waitUntil { store.hasCompletedStartup }
+        var script = ScriptEntry.empty()
+        script.name = "Service"
+        script.command = "echo ready"
+        script.notes = "本地服务 DEVELOPMENT logs\n用于排查"
+        store.upsert(script)
+        XCTAssertEqual(try repository.load().first?.notes, script.notes)
+        let exportURL = directory.appendingPathComponent("export.json")
+        try repository.exportScripts(store.scripts, to: exportURL)
+        let imported = try repository.importScripts(from: exportURL)
+        XCTAssertEqual(imported.first?.notes, script.notes)
+        store.searchQuery = "  development  "
+        XCTAssertEqual(store.filteredScripts.map(\.id), [script.id])
+        store.searchQuery = "排查"
+        XCTAssertEqual(store.filteredScripts.map(\.id), [script.id])
+        store.searchQuery = "missing"
+        XCTAssertTrue(store.filteredScripts.isEmpty)
     }
 
     func testSettingsPersistLanguageAndProcessChangesReachCoordinator() async throws {

@@ -69,6 +69,7 @@ final class ScriptStore: ObservableObject {
         guard !query.isEmpty else { return scripts }
         return scripts.filter {
             $0.name.lowercased().contains(query) ||
+            $0.notes.lowercased().contains(query) ||
             $0.command.lowercased().contains(query) ||
             $0.workingDirectory.lowercased().contains(query) ||
             $0.tags.contains { $0.lowercased().contains(query) }

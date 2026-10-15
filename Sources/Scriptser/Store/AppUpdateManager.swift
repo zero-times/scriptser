@@ -184,7 +184,7 @@ final class AppUpdateManager: ObservableObject {
         self.launchRestartHelperOverride = launchRestartHelper
         self.performRestartOverride = performRestart
         self.currentVersion = currentVersion
-            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.4"
+            ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.3.0"
     }
 
     /// False means another surface already owns the in-flight check.

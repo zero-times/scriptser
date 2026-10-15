@@ -6,18 +6,18 @@ Target **{{APP_NAME}}**, `{{BUNDLE_ID}}`. Labels below pair English and Simplifi
 
 - **Manager / 管理** (⌘,) reuses a single management window. The menu bar lists scripts with current status and scrolls when necessary.
 - **Add Custom Command… / 添加自定义命令…** is available in Manager and the menu bar. Menu bar creation opens the editor in Manager.
-- Script rows show name, command, working directory, disabled state, at-launch indicator, last run and duration. Status is **Idle / 未运行**, **Running / 运行中**, **Success / 成功**, **Failed / 失败**, or **Stopped / 已停止**.
-- Manager row buttons and the row context menu provide **Edit / 编辑**, **Output / 输出**, **Run / 运行** or **Stop / 停止**, and **Delete / 删除**. Menu bar rows provide Run/Stop.
+- Script rows default to a compact name and one-line note, with an at-launch indicator when enabled. Click the name/chevron or choose **Show Details / 查看详情** from **More Actions / 更多操作** to expand full notes, command, working directory, tags, disabled state, last run, duration and process details. Click again or choose **Hide Details / 收起详情** to collapse. Status is **Idle / 未运行**, **Running / 运行中**, **Success / 成功**, **Failed / 失败**, or **Stopped / 已停止**.
+- The status is an actionable button: **Run / 运行**, **Running · Stop / 运行中 · 停止**, **Success · Run / 成功 · 运行**, **Failed · Retry / 失败 · 重试**, or **Stopped · Run / 已停止 · 运行**. **More Actions / 更多操作** and the context menu provide details, editing and execution; Manager also provides Output and Delete. Expanded details have Edit and, in Manager, Output buttons. Menu bar Edit opens the editor in Manager.
 - **Quit / 退出** (⌘Q) exits the app. It does not stop tracked running scripts. Stop requested scripts first only when that is part of the user's request.
 
 ## Add, edit, enable, and launch behavior
 
 1. Click **Add Custom Command… / 添加自定义命令…** (⌘N), or the target row's **Edit / 编辑**.
-2. Set **Name / 名称**, **Command / 命令** (supports multiple lines), and **Working Directory (optional) / 工作目录（可选）**. **Browse… / 浏览…** opens a directory chooser; select the requested directory and **Select / 选择**, or cancel. An empty directory uses the app's default. A blank name displays as **Untitled Script / 未命名脚本**.
+2. Set **Name / 名称**, **Notes (optional) / 备注（可选）**, **Command / 命令** (supports multiple lines), and **Working Directory (optional) / 工作目录（可选）**. **Browse… / 浏览…** opens a directory chooser; select the requested directory and **Select / 选择**, or cancel. An empty directory uses the app's default. A blank name displays as **Untitled Script / 未命名脚本**.
 3. **Enabled / 启用** determines whether Run and Run All can execute this script. **Run when Scriptser launches / 随 Scriptser 启动运行** opts an enabled script into automatic execution on the next app launch. Already running tracked scripts are recovered without another launch. This is separate from Launch at Login.
 4. **Save / 保存** (⌘S) persists the draft. Empty commands disable Save. **Cancel / 取消** or Escape discards the draft. Verify the saved row and toggles through Edit as needed.
 
-Commands execute via `/bin/zsh -ilc` using the login and interactive shell environment. Commands may have external effects; use the exact requested command. Tags participate in search but have no editor control in this version.
+Commands execute via `/bin/zsh -ilc` using the login and interactive shell environment. Commands may have external effects; use the exact requested command. Notes are displayed in the compact list, support multiple lines in the editor and details, and are preserved in JSON import/export. Old configurations default to empty notes. Tags participate in search but have no editor control in this version.
 
 ## Delete
 
@@ -25,7 +25,7 @@ Use the target row's **Delete / 删除**, its context menu, or deletion from the
 
 ## Search and filters
 
-**Search scripts… / 搜索脚本…** (⌘F) matches names, commands, directories, and tags without case sensitivity. Choose **All Scripts / 全部脚本**, **Running / 运行中**, or **At Launch / 自启动**. Search and the active filter combine; At Launch includes disabled scripts with their launch flag set. Clear the query and select All Scripts to restore the full list. Selection identifies a row; it does not execute it.
+**Search scripts… / 搜索脚本…** (⌘F) matches names, notes, commands, directories, and tags without case sensitivity. Choose **All Scripts / 全部脚本**, **Running / 运行中**, or **At Launch / 自启动**. Search and the active filter combine; At Launch includes disabled scripts with their launch flag set. Clear the query and select All Scripts to restore the full list. Clicking a row’s name expands or collapses details; only the execution button or Run/Stop action executes or stops it.
 
 ## Run and stop
 
@@ -33,11 +33,11 @@ Use the target row's **Delete / 删除**, its context menu, or deletion from the
 - **Stop / 停止** requests termination of the tracked target process. Verify the resulting status; termination can be asynchronous.
 - **Run All / 全部运行** (⇧⌘R in Manager) starts enabled scripts that are not already running. **Stop All / 全部停止** (⇧⌘. in Manager) stops all tracked scripts. Batch operations apply to the entire saved list, including rows hidden by search/filter. Both are available in the menu bar.
 - A restored process may show **Running (restored) / 运行中（已恢复）**. Recovery restores tracking, not historical output. Inspect failures and exit information rather than assuming a click succeeded.
-- Running scripts display **PID: …** and **End Process / 结束进程** in Manager, the menu bar, and Output. The PID identifies the tracked shell process, not all of its descendants. End Process asks for confirmation naming the script and PID, then sends SIGKILL to that exact tracked PID. Use it when the user requests force termination or a process does not respond to Stop. Confirming an old dialog after the process changes is rejected. This does not terminate an entire process tree. Verify the Stopped status and disappearance of the PID.
+- Expand a running script’s details in Manager or the menu bar, or open Output, to see **PID: …** and **End Process / 结束进程**. The PID identifies the tracked shell process, not all of its descendants. End Process asks for confirmation naming the script and PID, then sends SIGKILL to that exact tracked PID. Use it when the user requests force termination or a process does not respond to Stop. Confirming an old dialog after the process changes is rejected. This does not terminate an entire process tree. Verify the Stopped status and disappearance of the PID.
 
 ## Output
 
-Open the target row's **Output / 输出**. The viewer refreshes every second and shows status, duration, character count, and a **Live / 实时** indicator while running.
+Open **More Actions / 更多操作** or expand the target row in Manager, then choose **Output / 输出**. The viewer refreshes every second and shows status, duration, character count, and a **Live / 实时** indicator while running.
 
 - **Auto-scroll / 自动滚动** toggles following new output. Turn it off to inspect earlier lines, or scroll the viewer manually.
 - **Refresh output / 刷新输出** fetches the current buffer immediately.
