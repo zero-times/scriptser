@@ -49,6 +49,17 @@ final class AppSettings: ObservableObject {
         logger.info("AppSettings initialized")
     }
 
+    var loginItemStatusName: String {
+        guard managesLoginItem else { return "not_managed" }
+        switch SMAppService.mainApp.status {
+        case .enabled: return "enabled"
+        case .requiresApproval: return "requiresApproval"
+        case .notRegistered: return "notRegistered"
+        case .notFound: return "notFound"
+        @unknown default: return "unknown"
+        }
+    }
+
     func resetToDefaults() {
         language = .system
         outputBufferSize = 10000

@@ -101,6 +101,12 @@ enum ProcessError: LocalizedError {
 3. Process PIDs persisted to `UserDefaults` for recovery across app restarts
 4. Termination handled via `terminationHandler` closure
 
+### Local code control
+
+- `LocalControlServer` accepts one JSON request per same-user Unix socket connection; keep permission checks, framing bounds, and single-instance locking intact.
+- `ControlAPI` dispatches on `@MainActor` through the shared `ScriptStore`. Persist code-control definition changes with `controlCommit` before publishing; never create a second process runner or mutate the live config externally.
+- Skill instructions/client ship in `Resources/Skills`; `SkillManager` renders them for production or DEV and migrates generated legacy skills. Keep generated Python source and API reference aligned with the native methods.
+
 ### Persistence
 
 - **Config file**: `~/Library/Application Support/Scriptser/config.json`

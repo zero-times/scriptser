@@ -6,6 +6,7 @@ struct ScriptserApp: App {
     static let managerWindowID = "script-manager"
     @Environment(\.openWindow) private var openWindow
     @StateObject private var store: ScriptStore
+    private let controlServer: LocalControlServer
 
     private static var isDevelopmentApp: Bool {
         Bundle.main.bundleIdentifier == "com.scriptser.scr1.preview"
@@ -14,13 +15,23 @@ struct ScriptserApp: App {
     private var appName: String { Self.isDevelopmentApp ? "Scriptser DEV" : "Scriptser" }
 
     init() {
+        let sharedStore: ScriptStore
         if Self.isDevelopmentApp {
             let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             let config = support.appendingPathComponent("Scriptser-DEV/config.json")
-            // Repository errors are surfaced by ScriptStore rather than crashing the DEV app.
-            _store = StateObject(wrappedValue: ScriptStore(configURL: config, settings: AppSettings(managesLoginItem: false)))
+            sharedStore = ScriptStore(configURL: config, settings: AppSettings(managesLoginItem: false))
         } else {
-            _store = StateObject(wrappedValue: ScriptStore())
+            sharedStore = ScriptStore()
+        }
+        _store = StateObject(wrappedValue: sharedStore)
+        let api = ControlAPI(store: sharedStore)
+        controlServer = LocalControlServer(socketURL: LocalControlServer.defaultSocketURL(isDevelopmentApp: Self.isDevelopmentApp)) {
+            await api.handle($0)
+        }
+        do { try controlServer.start() }
+        catch {
+            AppLogger.general.error("Could not start local code control: \(error.localizedDescription)")
+            sharedStore.lastError = .settingsError(error.localizedDescription)
         }
         DispatchQueue.main.async {
             NSApp?.setActivationPolicy(Self.isDevelopmentApp ? .regular : .accessory)
