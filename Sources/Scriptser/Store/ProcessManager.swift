@@ -125,6 +125,8 @@ final class ProcessManager: ObservableObject {
     private let defaults: UserDefaults
     private let persistedStateKey = "scriptserRunState"
 
+    var outputBufferSize = 10000
+
     @Published var runStates: [UUID: ScriptRunState] = [:]
 
     /// Callback for state changes
@@ -176,7 +178,7 @@ final class ProcessManager: ObservableObject {
             throw ProcessError.emptyCommand
         }
 
-        logger.info("Starting script: \(script.name) with command: \(trimmedCommand)")
+        logger.info("Starting script: \(script.id)")
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/zsh")
@@ -209,8 +211,9 @@ final class ProcessManager: ObservableObject {
             let data = handle.availableData
             guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
 
-            Task { [weak self] in
-                await self?.processState.appendOutput(for: script.id, text: text)
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                await self.processState.appendOutput(for: script.id, text: text, maxLength: self.outputBufferSize)
             }
         }
 
@@ -245,32 +248,25 @@ final class ProcessManager: ObservableObject {
     }
 
     func stop(_ scriptId: UUID) async {
-        var didStop = false
-
         if let process = await processState.getProcess(for: scriptId) {
+            guard process.isRunning else { return }
             await processState.markAsStopped(scriptId)
             process.terminate()
-            didStop = true
-            clearPersistedRunState(for: scriptId)
-            logger.info("Terminated process for script: \(scriptId)")
+            // Keep status/PID until the termination handler observes the actual exit. A script
+            // can ignore SIGTERM, so a stop request must not allow duplicate runs or deletion.
         } else if let pid = await processState.getPid(for: scriptId) {
-            await processState.markAsStopped(scriptId)
-            kill(pid, SIGTERM)
+            guard kill(pid, SIGTERM) == 0 || errno == ESRCH else { return }
+            let deadline = Date().addingTimeInterval(2)
+            while isProcessRunning(pid: pid), Date() < deadline {
+                try? await Task.sleep(nanoseconds: 20_000_000)
+            }
+            guard !isProcessRunning(pid: pid), status(for: scriptId).pid == pid,
+                  await processState.getPid(for: scriptId) == pid else { return }
             await processState.clearProcess(for: scriptId)
             clearPersistedRunState(for: scriptId)
-            didStop = true
-            logger.info("Killed process PID \(pid) for script: \(scriptId)")
+            updateState(scriptId, ScriptRunState(status: .stopped, lastMessage: L10n.text("Stopped by user"),
+                                                startedAt: status(for: scriptId).startedAt, endedAt: Date(), exitCode: nil))
         }
-
-        guard didStop else { return }
-
-        updateState(scriptId, ScriptRunState(
-            status: .stopped,
-            lastMessage: L10n.text("Stopped by user"),
-            startedAt: status(for: scriptId).startedAt,
-            endedAt: Date(),
-            exitCode: nil
-        ))
     }
 
     /// Require the PID captured by the confirmation dialog, rejecting a restarted target.

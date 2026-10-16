@@ -32,11 +32,21 @@ Shortcuts: ⌘N to add a script, ⌘F to search, ⌘S to save in the editor, ⇧
 
 ## AI Skill
 
-Open **AI Skill** (⇧⌘K) in Manager to select a skills directory and generate a ready-to-load `scriptser-control` folder containing `SKILL.md` and `references/ui.md`. The default is `~/.codex/skills`, or `$CODEX_HOME/skills` when that variable is available to the app. The selected directory is remembered. Generation also works in custom assistant directories.
+Open **AI Skill** (⇧⌘K) in Manager to select a skills directory and generate `scriptser-control`, containing `SKILL.md`, `references/cli.md`, and `scripts/scriptserctl.py`. The default is `~/.codex/skills`, or `$CODEX_HOME/skills` when available to the app. The directory is remembered. In Codex, invoke `$scriptser-control` in a new chat, or use **Copy Adding Prompt** to load its absolute path.
 
-The dialog includes a preview, installation steps, **Open Skill Folder**, and **Copy Adding Prompt** with the absolute entrypoint path. In Codex, start a new chat and invoke `$scriptser-control`, or paste the adding prompt to load the Skill by path. The Skill covers all interface operations, including process termination and app updates. It requires an assistant with macOS UI automation and Accessibility access; it supplies guidance without installing an automation tool or introducing a backend.
+The skill uses Python 3's standard library and Scriptser's native local JSON API. No computer-use tool, Accessibility permission, desktop clicks, or additional service is needed. It works while the screen is locked, provided Scriptser remains running in the logged-in user's session and the Mac is awake.
 
-Generating again replaces the two bundled instruction files while preserving additional files. Unrelated Skills and symbolic links at the destination are rejected. DEV generates `scriptser-dev-control` with its own app target, so it can coexist with the production Skill. Generated targets use the current app installation path; regenerate after moving the app or use its new location.
+```sh
+python3 ~/.codex/skills/scriptser-control/scripts/scriptserctl.py status
+python3 ~/.codex/skills/scriptser-control/scripts/scriptserctl.py scripts.list
+python3 ~/.codex/skills/scriptser-control/scripts/scriptserctl.py scripts.run --params '{"id":"SCRIPT_UUID"}'
+```
+
+The API manages definitions, execution, output, imports/exports, settings, skill generation, and app updates through the same store as the UI. Commands and multiline data can be supplied with `--params-file`. `run` acknowledges starting a process; inspect status, exit code, and output for completion. Update actions return acceptance and expose progress via `updates.status`. Errors are structured JSON; the client never retries a mutation automatically or silently launches the app. `launch` explicitly opens it, which can execute enabled at-launch scripts.
+
+The Unix socket is `~/Library/Application Support/Scriptser/control.sock`, mode 0600, with same-user peer checks and a single-instance lock. It exposes no TCP port. DEV uses `Scriptser-DEV/control.sock` and generates `scriptser-dev-control`. The [bundled API reference](Sources/Scriptser/Resources/Skills/scriptser-control/references/cli.md) documents the protocol and methods.
+
+Generation upgrades the legacy UI skill to code control, replaces bundled instructions/client, removes the obsolete bundled UI guide, and preserves additional files. Unrelated skills and symlinks at managed paths are rejected. Regenerate after moving the app to refresh its launch target. Older Scriptser versions need to be upgraded to 1.3.1+ before using this skill.
 
 ## Process details and application icon
 
@@ -50,7 +60,7 @@ The bundled macOS app icon is shared by the shipping and DEV app. Its reproducib
 
 For a newer release, view the release notes and choose **Install and Restart**. Scriptser downloads the package with live progress, verifies its size and GitHub's SHA-256 digest when provided, mounts the `.dmg` or extracts the `.zip`, stages the replacement app, then swaps the bundle and relaunches automatically after quitting. Scripts and preferences stay in their existing locations. Automatic in-place installation applies to the production app; the DEV build and `.pkg` packages keep the manual fallback, where **Download Update…** saves the verified package and **Open Download** opens it for a manual replacement in Applications.
 
-To build a universal DMG and `SHA256SUMS.txt` from the version set in the Xcode project, run `zsh tools/build-release.sh 1.3.0`. The script verifies the packaged version and architectures, then applies an ad-hoc signature. Artifacts are written to `.build/releases/v1.3.0/`.
+To build a universal DMG and `SHA256SUMS.txt` from the version set in the Xcode project, run `zsh tools/build-release.sh 1.3.1`. The script verifies the packaged version and architectures, then applies an ad-hoc signature. Artifacts are written to `.build/releases/v1.3.1/`.
 
 Publish stable tags such as `v1.0.1` and attach packages named, for example, `Scriptser-arm64.dmg`, `Scriptser-x86_64.dmg`, or `Scriptser-universal.zip`. GitHub's generated source-code archives are not app updates. If no compatible package is available, the update view links to Releases; before the first release, the check reports that no releases are published.
 
@@ -71,7 +81,7 @@ swift test
 xcodebuild -project Scriptser.xcodeproj -scheme Scriptser -configuration Debug CODE_SIGNING_ALLOWED=NO build
 ```
 
-Tests use temporary configuration files and isolated preferences to cover configuration compatibility, language resources, automatic execution, process recovery, duplicate prevention, failure handling, GitHub version checks, package selection, and verified update downloads.
+Tests use temporary configuration files and isolated preferences to cover configuration compatibility, language resources, automatic execution, process recovery, duplicate prevention, failure handling, GitHub version checks, package selection, verified update downloads, code-control CRUD and process operations, socket ownership/framing, Python client integration, and legacy skill upgrades.
 
 macOS Login Items registration requires a properly bundled application. If macOS requests approval, enable Scriptser in System Settings → General → Login Items. Validate login registration in the signed application on the target Mac.
 

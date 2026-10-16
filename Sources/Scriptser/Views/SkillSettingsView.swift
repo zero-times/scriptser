@@ -11,7 +11,7 @@ struct SkillSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Label(L10n.text("AI Skill"), systemImage: "sparkles").font(.title2.weight(.semibold))
-            Text(L10n.text("Generate a Skill that guides your AI assistant through every Scriptser interface feature."))
+            Text(L10n.text("Generate a Skill for code-based Scriptser control, including while the screen is locked."))
                 .foregroundStyle(.secondary)
             GroupBox(L10n.text("Skill Directory")) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -21,7 +21,7 @@ struct SkillSettingsView: View {
                         Spacer()
                         Button(L10n.text("Choose Directory...")) { chooseDirectory() }
                     }
-                    Text(L10n.format("Creates %@ with SKILL.md and references/ui.md.", store.skillManager.skillName))
+                    Text(L10n.format("Creates %@ with instructions, API reference, and a Python client.", store.skillManager.skillName))
                         .font(.caption).foregroundStyle(.secondary)
                     Text(L10n.text("Generating again updates the bundled instructions. Additional files are preserved."))
                         .font(.caption).foregroundStyle(.secondary)
@@ -32,7 +32,7 @@ struct SkillSettingsView: View {
                     Text(L10n.text("1. Choose your assistant’s skills directory. Codex defaults to ~/.codex/skills (or $CODEX_HOME/skills)."))
                     Text(L10n.text("2. Click Generate Skill. For another assistant, choose its skills directory or import the generated folder."))
                     Text(L10n.format("3. Start a new chat and invoke $%@, or copy the prompt below to load this Skill by path.", store.skillManager.skillName))
-                    Text(L10n.text("The assistant needs a macOS interface automation tool and Accessibility permission. The Skill provides instructions; it does not install an automation tool."))
+                    Text(L10n.text("Requires Python 3 and Scriptser running in your logged-in session. No UI automation or Accessibility permission is needed."))
                         .font(.caption).foregroundStyle(.secondary)
                     if let generatedURL {
                         Label(L10n.format("Generated at %@", generatedURL.path), systemImage: "checkmark.circle")

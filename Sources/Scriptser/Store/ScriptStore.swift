@@ -49,6 +49,7 @@ final class ScriptStore: ObservableObject {
 
     // Dependencies
     private var repository: ScriptRepository?
+    private var configLoadedSuccessfully = false
     let processManager: ProcessManager
     let settings: AppSettings
     let updateManager: AppUpdateManager
@@ -88,6 +89,9 @@ final class ScriptStore: ObservableObject {
             .store(in: &subscriptions)
         self.settings.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &subscriptions)
+        self.settings.$outputBufferSize
+            .sink { [weak self] size in self?.processManager.outputBufferSize = max(1000, min(size, 1_000_000)) }
             .store(in: &subscriptions)
         self.settings.$lastError
             .compactMap { $0 }
@@ -218,6 +222,38 @@ final class ScriptStore: ObservableObject {
         await processManager.clearOutput(for: script.id)
     }
 
+    // MARK: - Code control
+
+    var controlConfigDirectory: URL? { repository?.configFolderURL }
+
+    /// Persist first so a failed disk write cannot leave the shared UI/API state ahead of disk.
+    func controlCommit(_ entries: [ScriptEntry]) throws {
+        guard configLoadedSuccessfully, let repository else {
+            throw ControlError("repository_unavailable", "Configuration could not be loaded. Repair it before changing scripts.")
+        }
+        guard Set(entries.map(\.id)).count == entries.count else {
+            throw ControlError("duplicate_id", "Script IDs must be unique.")
+        }
+        try repository.save(entries)
+        scripts = entries
+    }
+
+    func controlRun(_ script: ScriptEntry) async throws {
+        guard configLoadedSuccessfully else {
+            throw ControlError("repository_unavailable", "Configuration could not be loaded.")
+        }
+        try await processManager.run(script)
+        if let index = scripts.firstIndex(where: { $0.id == script.id }) {
+            var entries = scripts
+            entries[index].lastRunAt = Date()
+            do { try controlCommit(entries) }
+            catch {
+                // The process has already started; never invite an automatic retry of the run.
+                throw ControlError("started_persistence_failed", "Script started, but its last-run timestamp could not be saved. Inspect status before retrying. " + error.localizedDescription)
+            }
+        }
+    }
+
     // MARK: - Import/Export
 
     func exportScripts(to url: URL) {
@@ -276,6 +312,7 @@ final class ScriptStore: ObservableObject {
     private func load() {
         do {
             scripts = try repository?.load() ?? []
+            configLoadedSuccessfully = repository != nil
         } catch {
             logger.error("Load failed: \(error.localizedDescription)")
             if let repoError = error as? RepositoryError {
